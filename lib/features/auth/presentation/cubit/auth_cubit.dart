@@ -1,0 +1,129 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../domain/usecases/auth_usecase.dart';
+
+import 'auth_state.dart';
+
+class AuthCubit extends Cubit<AuthState> {
+  final SendOtpUsecase _sendOtpUsecase;
+  final VerifyOtpUsecase _verifyOtpUsecase;
+  final RegisterUserUsecase _registerUserUsecase;
+
+  AuthCubit({
+    required SendOtpUsecase sendOtpUsecase,
+    required VerifyOtpUsecase verifyOtpUsecase,
+    required RegisterUserUsecase registerUserUsecase,
+  }) : _sendOtpUsecase = sendOtpUsecase,
+       _verifyOtpUsecase = verifyOtpUsecase,
+       _registerUserUsecase = registerUserUsecase,
+       super(const AuthState());
+
+  void updatePhoneNumber(String phone) {
+    emit(state.copyWith(phoneNumber: phone, errorMessage: null));
+  }
+
+  Future<void> submitPhoneNumber() async {
+    if (state.isLoading) {
+      return;
+    }
+
+    emit(state.copyWith(isLoading: true, errorMessage: null));
+
+    try {
+      await _sendOtpUsecase(state.phoneNumber);
+      emit(state.copyWith(isLoading: false, currentStep: AuthStep.otp));
+    } catch (e) {
+      emit(
+        state.copyWith(
+          isLoading: false,
+          errorMessage: 'Failed to send OTP. Please check your connection.',
+        ),
+      );
+    }
+  }
+
+  Future<void> verifyOtp(String code) async {
+    if (state.isLoading) {
+      return;
+    }
+
+    emit(state.copyWith(isLoading: true, errorMessage: null));
+
+    try {
+      final isValid = await _verifyOtpUsecase(state.phoneNumber, code);
+
+      if (isValid) {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            currentStep: AuthStep.name,
+            failedOtpAttempts: 0,
+          ),
+        );
+      } else {
+        final attempts = state.failedOtpAttempts + 1;
+        String message = 'Invalid code. Try 123456.';
+
+        if (attempts >= 3) {
+          message = 'Too many wrong attempts. Please request a new code.';
+        }
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            failedOtpAttempts: attempts,
+            errorMessage: message,
+          ),
+        );
+      }
+    } catch (e) {
+      emit(
+        state.copyWith(
+          isLoading: false,
+          errorMessage: 'Verification failed. Please try again.',
+        ),
+      );
+    }
+  }
+
+  void saveName(String first, String? last) {
+    emit(
+      state.copyWith(
+        firstName: first,
+        lastName: last,
+        currentStep: AuthStep.dob,
+        errorMessage: null,
+      ),
+    );
+  }
+
+  Future<void> completeRegistration(DateTime dob) async {
+    emit(state.copyWith(isLoading: true, dateOfBirth: dob));
+
+    try {
+      await _registerUserUsecase(
+        phoneNumber: state.phoneNumber,
+        firstName: state.firstName,
+        lastName: state.lastName,
+        dateOfBirth: dob,
+      );
+      emit(state.copyWith(isLoading: false, currentStep: AuthStep.completed));
+    } catch (e) {
+      emit(
+        state.copyWith(
+          isLoading: false,
+          errorMessage: 'Registration failed. Please try again.',
+        ),
+      );
+    }
+  }
+
+  void goBack() {
+    if (state.currentStep == AuthStep.otp) {
+      emit(state.copyWith(currentStep: AuthStep.phone, errorMessage: null));
+    } else if (state.currentStep == AuthStep.name) {
+      emit(state.copyWith(currentStep: AuthStep.otp, errorMessage: null));
+    } else if (state.currentStep == AuthStep.dob) {
+      emit(state.copyWith(currentStep: AuthStep.name, errorMessage: null));
+    }
+  }
+}

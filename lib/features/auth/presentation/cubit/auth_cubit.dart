@@ -188,6 +188,10 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  void resetOtpAttempts() {
+    emit(state.copyWith(failedOtpAttempts: 0, errorMessage: null));
+  }
+
   String _normalizePhoneNumber(String phone) {
     var normalized = phone.replaceAll(RegExp(r'[\s-]'), '');
     if (normalized.startsWith('+95')) {

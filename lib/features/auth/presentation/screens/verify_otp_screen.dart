@@ -16,8 +16,11 @@ class VerifyOtpScreen extends StatefulWidget {
   State<VerifyOtpScreen> createState() => _VerifyOtpScreenState();
 }
 
-class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
+class _VerifyOtpScreenState extends State<VerifyOtpScreen>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
+  late final AnimationController _shakeController;
+
   final List<TextEditingController> _controllers = List.generate(
     6,
     (_) => TextEditingController(),
@@ -28,10 +31,15 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
   int _secondsRemaining = 300;
   Timer? _timer;
   bool _canResend = false;
+  bool _isClearing = false;
 
   @override
   void initState() {
     super.initState();
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
     _startCountdown();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -50,6 +58,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
     }
 
     _timer?.cancel();
+    _shakeController.dispose();
     super.dispose();
   }
 
@@ -80,6 +89,10 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
   }
 
   void _onDigitChanged(String value, int index) {
+    if (_isClearing || context.read<AuthCubit>().state.failedOtpAttempts >= 3) {
+      return;
+    }
+
     if (value.length == 1 && index < 5) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -92,6 +105,22 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
     String otpCode = _controllers.map((c) => c.text).join();
     if (otpCode.length == 6) {
       context.read<AuthCubit>().verifyOtp(otpCode);
+    }
+  }
+
+  Future<void> _clearAndShake() async {
+    _isClearing = true;
+    for (final controller in _controllers) {
+      controller.clear();
+    }
+    _focusNodes.first.requestFocus();
+    await _shakeController.forward(from: 0);
+    if (mounted) {
+      setState(() {
+        _isClearing = false;
+      });
+    } else {
+      _isClearing = false;
     }
   }
 
@@ -128,12 +157,11 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
         }
 
         if (state.errorMessage != null && state.failedOtpAttempts > 0) {
+          _clearAndShake();
           showErrorSnackBar(context, state.errorMessage!);
         }
       },
       builder: (context, state) {
-        final showOtpError = state.failedOtpAttempts > 0;
-
         return AuthScaffold(
           formKey: _formKey,
           progressValue: state.progressPercentage,
@@ -168,55 +196,56 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List.generate(6, (index) {
-                    return SizedBox(
-                      width: 48,
-                      height: 60,
-                      child: TextFormField(
-                        controller: _controllers[index],
-                        focusNode: _focusNodes[index]
-                          ..onKeyEvent = (node, event) =>
-                              _handleKeyEvent(index, event),
-                        keyboardType: TextInputType.number,
-                        textAlign: TextAlign.center,
-                        textAlignVertical: TextAlignVertical.center,
-                        textInputAction: TextInputAction.next,
-                        maxLength: 1,
-                        autofocus: index == 0,
-                        autofillHints: const [AutofillHints.oneTimeCode],
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        cursorColor: theme.colorScheme.primary,
-                        cursorWidth: 2,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                    return AnimatedBuilder(
+                      animation: _shakeController,
+                      builder: (context, child) {
+                        final offset =
+                            (1 - _shakeController.value) *
+                            8 *
+                            ((_shakeController.value * 8).floor().isEven
+                                ? 1
+                                : -1);
+                        return Transform.translate(
+                          offset: Offset(offset, 0),
+                          child: child,
+                        );
+                      },
+                      child: SizedBox(
+                        width: 48,
+                        height: 60,
+                        child: TextFormField(
+                          controller: _controllers[index],
+                          focusNode: _focusNodes[index]
+                            ..onKeyEvent = (node, event) =>
+                                _handleKeyEvent(index, event),
+                          keyboardType: TextInputType.number,
+                          textAlign: TextAlign.center,
+                          textAlignVertical: TextAlignVertical.center,
+                          textInputAction: TextInputAction.next,
+                          maxLength: 1,
+                          autofocus: index == 0,
+                          readOnly: state.failedOtpAttempts >= 3,
+                          autofillHints: const [AutofillHints.oneTimeCode],
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          cursorColor: theme.colorScheme.primary,
+                          cursorWidth: 2,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(vertical: 14),
+                            counterText: "",
+                          ),
+                          onTap: () => _focusNodes[index].requestFocus(),
+                          onChanged: (value) => _onDigitChanged(value, index),
                         ),
-                        decoration: const InputDecoration(
-                          contentPadding: EdgeInsets.symmetric(vertical: 14),
-                          counterText: "",
-                        ),
-                        onTap: () => _focusNodes[index].requestFocus(),
-                        onChanged: (value) => _onDigitChanged(value, index),
                       ),
                     );
                   }),
                 ),
-                const SizedBox(height: 10),
-
-                // Validation error message
-                showOtpError
-                    ? Text(
-                        state.failedOtpAttempts > 0
-                            ? (state.errorMessage ??
-                                  "Incorrect code. Please try again.")
-                            : "Enter the 6-digit code sent to your phone.",
-                        style: TextStyle(
-                          color: theme.colorScheme.error,
-                          fontSize: 12,
-                        ),
-                      )
-                    : const SizedBox.shrink(),
                 const SizedBox(height: 20),
 
                 // Resend code section
@@ -228,8 +257,12 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                       WidgetSpan(
                         child: GestureDetector(
                           onTap: _canResend
-                              ? () {
-                                  context.read<AuthCubit>().submitPhoneNumber();
+                              ? () async {
+                                  final cubit = context.read<AuthCubit>();
+                                  await cubit.submitPhoneNumber();
+                                  if (!mounted) return;
+                                  cubit.resetOtpAttempts();
+                                  await _clearAndShake();
                                   _startCountdown();
                                 }
                               : null,

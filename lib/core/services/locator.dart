@@ -56,7 +56,10 @@ Future<void> setupLocator() async {
   locator.registerLazySingleton(() => SendOtpUsecase(locator()));
   locator.registerLazySingleton(() => VerifyOtpUsecase(locator()));
   locator.registerLazySingleton(() => RegisterUserUsecase(locator()));
+  locator.registerLazySingleton(() => ActivateSessionUsecase(locator()));
   locator.registerLazySingleton(() => GetCachedUserUsecase(locator()));
+  locator.registerLazySingleton(() => GetActiveUserUsecase(locator()));
+  locator.registerLazySingleton(() => LogoutUsecase(locator()));
   locator.registerLazySingleton(() => GetHomeDataUsecase(locator()));
 
   // Keep one AuthCubit instance for the complete auth flow.
@@ -65,7 +68,9 @@ Future<void> setupLocator() async {
       sendOtpUsecase: locator(),
       verifyOtpUsecase: locator(),
       registerUserUsecase: locator(),
+      activateSessionUsecase: locator(),
       getCachedUserUsecase: locator(),
+      logoutUsecase: locator(),
     ),
   );
   locator.registerFactory(() => HomeCubit(locator()));

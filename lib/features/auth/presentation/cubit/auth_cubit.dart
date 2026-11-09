@@ -7,18 +7,33 @@ class AuthCubit extends Cubit<AuthState> {
   final SendOtpUsecase _sendOtpUsecase;
   final VerifyOtpUsecase _verifyOtpUsecase;
   final RegisterUserUsecase _registerUserUsecase;
+  final ActivateSessionUsecase _activateSessionUsecase;
   final GetCachedUserUsecase _getCachedUserUsecase;
+  final LogoutUsecase _logoutUsecase;
 
   AuthCubit({
     required SendOtpUsecase sendOtpUsecase,
     required VerifyOtpUsecase verifyOtpUsecase,
     required RegisterUserUsecase registerUserUsecase,
+    required ActivateSessionUsecase activateSessionUsecase,
     required GetCachedUserUsecase getCachedUserUsecase,
+    required LogoutUsecase logoutUsecase,
   }) : _sendOtpUsecase = sendOtpUsecase,
        _verifyOtpUsecase = verifyOtpUsecase,
        _registerUserUsecase = registerUserUsecase,
+       _activateSessionUsecase = activateSessionUsecase,
        _getCachedUserUsecase = getCachedUserUsecase,
+       _logoutUsecase = logoutUsecase,
        super(const AuthState());
+
+  Future<void> logout() => _logoutUsecase();
+
+  Future<bool> hasDifferentRegisteredPhone() async {
+    final user = await _getCachedUserUsecase();
+    if (user == null) return false;
+    return _normalizePhoneNumber(user.phoneNumber) !=
+        _normalizePhoneNumber(state.phoneNumber);
+  }
 
   void setLoginMode(bool isLogin) {
     if (state.isLogin != isLogin) {
@@ -36,15 +51,13 @@ class AuthCubit extends Cubit<AuthState> {
     }
 
     final phoneNumber = _normalizePhoneNumber(state.phoneNumber);
+    final user = await _getCachedUserUsecase();
+    final isExistingUser =
+        user != null && _normalizePhoneNumber(user.phoneNumber) == phoneNumber;
+
     if (state.isLogin) {
-      final user = await _getCachedUserUsecase();
-      if (user == null || user.phoneNumber != phoneNumber) {
-        emit(
-          state.copyWith(
-            phoneNumber: phoneNumber,
-            errorMessage: null,
-          ),
-        );
+      if (!isExistingUser) {
+        emit(state.copyWith(phoneNumber: phoneNumber, errorMessage: null));
         return false;
       }
     }
@@ -83,10 +96,23 @@ class AuthCubit extends Cubit<AuthState> {
       final isValid = await _verifyOtpUsecase(state.phoneNumber, code);
 
       if (isValid) {
+        final user = await _getCachedUserUsecase();
+        final isExistingUser =
+            user != null &&
+            _normalizePhoneNumber(user.phoneNumber) ==
+                _normalizePhoneNumber(state.phoneNumber);
+
+        if (isExistingUser) {
+          await _activateSessionUsecase();
+        }
+
         emit(
           state.copyWith(
             isLoading: false,
-            currentStep: state.isLogin ? AuthStep.completed : AuthStep.name,
+            isLogin: state.isLogin || isExistingUser,
+            currentStep: isExistingUser || state.isLogin
+                ? AuthStep.completed
+                : AuthStep.name,
             failedOtpAttempts: 0,
           ),
         );

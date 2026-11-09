@@ -28,19 +28,77 @@ class _PhoneNumberInputScreenState extends State<PhoneNumberInputScreen> {
     context.read<AuthCubit>().setLoginMode(widget.isLogin);
   }
 
+  Future<void> _submitPhoneNumber() async {
+    final cubit = context.read<AuthCubit>();
+    final hasDifferentNumber = await cubit.hasDifferentRegisteredPhone();
+
+    final createNewAccount = hasDifferentNumber && mounted
+        ? await _confirmNewNumber(context)
+        : false;
+
+    if (createNewAccount == true) {
+      cubit.setLoginMode(false);
+    } else if (hasDifferentNumber) {
+      return;
+    }
+
+    final otpRequested = await cubit.submitPhoneNumber();
+    if (!mounted) {
+      return;
+    }
+    if (otpRequested) {
+      context.goNamed('verify_otp');
+      return;
+    }
+    if (!cubit.state.isLogin) return;
+
+    final createAccount = await _confirmNewNumber(context);
+    if (!mounted || createAccount != true) {
+      return;
+    }
+
+    cubit.setLoginMode(false);
+    final registrationOtpRequested = await cubit.submitPhoneNumber();
+    if (mounted && registrationOtpRequested) {
+      context.goNamed('verify_otp');
+    }
+  }
+
+  Future<bool?> _confirmNewNumber(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Different phone number',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+        content: Text(
+          "This number is different from the one saved to your account. "
+          'Would you like to create a new account with it?',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return BlocConsumer<AuthCubit, AuthState>(
       listenWhen: (previous, current) =>
-          previous.currentStep != current.currentStep ||
           previous.errorMessage != current.errorMessage,
       listener: (context, state) {
-        if (state.currentStep == AuthStep.otp) {
-          context.pushNamed('verify_otp');
-        }
-
         if (state.errorMessage != null && !state.isLogin) {
           showErrorSnackBar(context, state.errorMessage!);
         }
@@ -50,7 +108,10 @@ class _PhoneNumberInputScreenState extends State<PhoneNumberInputScreen> {
           formKey: _formKey,
           progressValue: state.progressPercentage,
           isLoading: state.isLoading,
-          onBackPressed: () => context.read<AuthCubit>().goBack(),
+          onBackPressed: () {
+            context.read<AuthCubit>().goBack();
+            context.goNamed('onboarding');
+          },
           primaryButtonText: "CONTINUE",
           onPrimaryButtonPressed: () {
             if (_formKey.currentState?.validate() ?? false) {
@@ -90,41 +151,5 @@ class _PhoneNumberInputScreenState extends State<PhoneNumberInputScreen> {
         );
       },
     );
-  }
-
-  Future<void> _submitPhoneNumber() async {
-    final cubit = context.read<AuthCubit>();
-    final otpRequested = await cubit.submitPhoneNumber();
-    if (!mounted || otpRequested || !cubit.state.isLogin) {
-      return;
-    }
-
-    final createAccount = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Create an account?'),
-        content: const Text(
-          "This phone number isn't linked to an account. "
-          'Would you like to create a new one?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Create'),
-          ),
-        ],
-      ),
-    );
-
-    if (!mounted || createAccount != true) {
-      return;
-    }
-
-    cubit.setLoginMode(false);
-    await cubit.submitPhoneNumber();
   }
 }

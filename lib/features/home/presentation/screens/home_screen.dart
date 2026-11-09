@@ -5,13 +5,13 @@ import 'package:j_donuts/features/home/presentation/widgets/custom_listview.dart
 import 'package:j_donuts/features/home/presentation/widgets/shop_card.dart';
 
 import '../../../../core/widgets/app_snack_bar.dart';
-import '../../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../domain/entities/member_profile.dart';
 import '../../domain/entities/shop.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../widgets/pill_container.dart';
 import '../widgets/section_header.dart';
+import '../widgets/home_skeletons.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,8 +21,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentNavIndex = 0;
-
   @override
   void initState() {
     super.initState();
@@ -39,23 +37,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.onBackground,
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: _currentNavIndex,
-        onTap: (index) {
-          setState(() => _currentNavIndex = index);
-          if (index != 0) {
-            showComingSoonSnackBar(context, 'This section is coming soon.');
-          }
-        },
-      ),
       body: BlocBuilder<HomeCubit, HomeState>(
         builder: (context, state) {
           if (state.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const HomeSkeleton();
           }
 
           if (state.errorMessage != null && state.data == null) {
-            return Center(child: Text(state.errorMessage!));
+            return SectionErrorState(message: state.errorMessage!);
           }
 
           final data = state.data;
@@ -79,12 +68,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                CustomListview(
-                  items: data.seasonalSpecials,
-                  imageHeight: 180,
-                  width: 280,
-                  hasDiscountBorder: true,
-                ),
+                data.seasonalSpecials.isEmpty
+                    ? const SectionEmptyState(
+                        message: 'No seasonal specials available.',
+                      )
+                    : CustomListview(
+                        items: data.seasonalSpecials,
+                        imageHeight: 180,
+                        width: 280,
+                        hasDiscountBorder: true,
+                      ),
                 const SizedBox(height: 20),
 
                 // Popular Section
@@ -97,11 +90,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                CustomListview(
-                  items: data.popular,
-                  imageHeight: 280,
-                  width: 170,
-                ),
+                data.popular.isEmpty
+                    ? const SectionEmptyState(
+                        message: 'No popular products available.',
+                      )
+                    : CustomListview(
+                        items: data.popular,
+                        imageHeight: 280,
+                        width: 170,
+                      ),
                 const SizedBox(height: 20),
 
                 // Order Again Section
@@ -114,17 +111,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                CustomListview(
-                  items: data.orderAgain.isNotEmpty
-                      ? data.orderAgain
-                      : data.seasonalSpecials,
-                  imageHeight: 180,
-                  width: 170,
-                ),
+                data.orderAgain.isEmpty
+                    ? const SectionEmptyState(
+                        message: 'You have no previous orders yet.',
+                      )
+                    : CustomListview(
+                        items: data.orderAgain,
+                        imageHeight: 180,
+                        width: 170,
+                      ),
                 const SizedBox(height: 30),
 
                 // Shops Section
-                _buildShopsSection(theme, data.shops),
+                data.shops.isEmpty
+                    ? const SectionEmptyState(
+                        message: 'No nearby shops available.',
+                      )
+                    : _buildShopsSection(theme, data.shops),
               ],
             ),
           );
@@ -265,6 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   badge: "50% off",
                   image: 'assets/images/home_banner3.png',
                 ),
+                const SizedBox(width: 20),
               ],
             ),
           ),

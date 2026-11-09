@@ -42,8 +42,16 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> activateSession() => localDataSource.activateSession();
+
+  @override
   Future<User?> getCachedUser() async {
     return await localDataSource.getCachedUser();
+  }
+
+  @override
+  Future<User?> getActiveUser() async {
+    return await localDataSource.getActiveUser();
   }
 
   @override

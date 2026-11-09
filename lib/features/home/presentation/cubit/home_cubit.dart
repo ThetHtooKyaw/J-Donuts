@@ -13,6 +13,8 @@ class HomeCubit extends Cubit<HomeState> {
 
     emit(state.copyWith(isLoading: true, errorMessage: null));
 
+    Future.delayed(const Duration(seconds: 10)); // Simulate network delay
+
     try {
       final result = await _getHomeDataUseCase();
       emit(state.copyWith(isLoading: false, data: result));

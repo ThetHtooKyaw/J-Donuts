@@ -12,7 +12,11 @@ abstract class AuthRepository {
     required DateTime dateOfBirth,
   });
 
+  Future<void> activateSession();
+
   Future<User?> getCachedUser();
+
+  Future<User?> getActiveUser();
 
   Future<void> logout();
 }

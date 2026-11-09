@@ -11,7 +11,7 @@ import 'features/home/presentation/cubit/home_cubit.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setupLocator();
-  final cachedUser = await locator<AuthRepository>().getCachedUser();
+  final cachedUser = await locator<AuthRepository>().getActiveUser();
 
   runApp(MyApp(isLoggedIn: cachedUser != null));
 }

@@ -33,9 +33,30 @@ class RegisterUserUsecase {
   );
 }
 
+class ActivateSessionUsecase {
+  final AuthRepository repository;
+  ActivateSessionUsecase(this.repository);
+
+  Future<void> call() => repository.activateSession();
+}
+
 class GetCachedUserUsecase {
   final AuthRepository repository;
   GetCachedUserUsecase(this.repository);
 
   Future<User?> call() => repository.getCachedUser();
+}
+
+class GetActiveUserUsecase {
+  final AuthRepository repository;
+  GetActiveUserUsecase(this.repository);
+
+  Future<User?> call() => repository.getActiveUser();
+}
+
+class LogoutUsecase {
+  final AuthRepository repository;
+  LogoutUsecase(this.repository);
+
+  Future<void> call() => repository.logout();
 }

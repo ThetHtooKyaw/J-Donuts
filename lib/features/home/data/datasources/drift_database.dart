@@ -50,7 +50,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -59,7 +59,7 @@ class AppDatabase extends _$AppDatabase {
       await _seedInitialData();
     },
     onUpgrade: (Migrator m, int from, int to) async {
-      if (from < 2) {
+      if (from < 3) {
         await delete(memberTable).go();
         await delete(productsTable).go();
         await delete(shopsTable).go();
@@ -78,7 +78,7 @@ class AppDatabase extends _$AppDatabase {
           tier: 'Bronze',
           pointsToNextTier: 1290,
           totalPoints: 680000,
-          avatarUrl: 'assets/images/onboarding_banner.png',
+          avatarUrl: 'assets/images/avatar.png',
           notificationCount: 2,
         ),
       ]);
@@ -127,7 +127,7 @@ class AppDatabase extends _$AppDatabase {
           name: 'Iced Caramel Macchiato',
           priceMmk: 3000,
           isNew: false,
-          discountPercent: const Value.absent(),
+          discountPercent: const Value(15),
           imageUrl: 'assets/images/product4.png',
           description:
               'Creamy espresso layers topped with whipped foam, colorful sprinkles, and a rich caramel drizzle.',
@@ -139,7 +139,7 @@ class AppDatabase extends _$AppDatabase {
           name: 'Chocolate Sprinkle Donut',
           priceMmk: 3600,
           isNew: false,
-          discountPercent: const Value.absent(),
+          discountPercent: const Value(15),
           imageUrl: 'assets/images/product5.png',
           description:
               'Decadent milk chocolate coating topped with a burst of rainbow sprinkles. Pure joy in every bite!',
@@ -214,6 +214,12 @@ class AppDatabase extends _$AppDatabase {
           name: 'Downtown J\'Donut',
           address: '2972 Pyay Road, Sanchaung Township, Yangon.',
           imageUrl: 'assets/images/shop3.png',
+        ),
+        ShopsTableCompanion.insert(
+          id: 'shop_4',
+          name: 'Downtown J\'Donut',
+          address: '2972 Pyay Road, Sanchaung Township, Yangon.',
+          imageUrl: 'assets/images/shop4.png',
         ),
       ]);
     });

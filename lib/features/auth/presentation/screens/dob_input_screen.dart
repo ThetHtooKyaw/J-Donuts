@@ -63,7 +63,7 @@ class _DOBInputScreenState extends State<DOBInputScreen> {
           previous.errorMessage != current.errorMessage,
       listener: (context, state) {
         if (state.currentStep == AuthStep.completed) {
-          context.pushNamed('welcome');
+          context.goNamed('welcome');
         }
 
         if (state.errorMessage != null) {
@@ -75,7 +75,10 @@ class _DOBInputScreenState extends State<DOBInputScreen> {
           formKey: _formKey,
           progressValue: state.progressPercentage,
           isLoading: state.isLoading,
-          onBackPressed: () => context.read<AuthCubit>().goBack(),
+          onBackPressed: () {
+            context.read<AuthCubit>().goBack();
+            context.goNamed('name_input');
+          },
           primaryButtonText: "CONTINUE",
           onPrimaryButtonPressed: () {
             if (_formKey.currentState?.validate() ?? false) {

@@ -38,7 +38,7 @@ class _NameInputScreenState extends State<NameInputScreen> {
           previous.errorMessage != current.errorMessage,
       listener: (context, state) {
         if (state.currentStep == AuthStep.dob) {
-          context.pushNamed('dob_input');
+          context.goNamed('dob_input');
         }
 
         if (state.errorMessage != null) {
@@ -50,7 +50,10 @@ class _NameInputScreenState extends State<NameInputScreen> {
           formKey: _formKey,
           progressValue: state.progressPercentage,
           isLoading: state.isLoading,
-          onBackPressed: () => context.read<AuthCubit>().goBack(),
+          onBackPressed: () {
+            context.read<AuthCubit>().goBack();
+            context.goNamed('verify_otp');
+          },
           primaryButtonText: "CONTINUE",
           onPrimaryButtonPressed: () {
             if (_formKey.currentState?.validate() ?? false) {

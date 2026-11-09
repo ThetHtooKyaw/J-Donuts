@@ -120,10 +120,11 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
               current.failedOtpAttempts == 0),
       listener: (context, state) {
         if (state.currentStep == AuthStep.name) {
-          context.pushNamed('name_input');
+          context.goNamed('name_input');
         }
+
         if (state.currentStep == AuthStep.completed) {
-          context.goNamed('welcome');
+          context.goNamed('home');
         }
 
         if (state.errorMessage != null && state.failedOtpAttempts > 0) {
@@ -137,7 +138,16 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
           formKey: _formKey,
           progressValue: state.progressPercentage,
           isLoading: state.isLoading,
-          onBackPressed: () => context.read<AuthCubit>().goBack(),
+          onBackPressed: () {
+            final cubit = context.read<AuthCubit>();
+            cubit.goBack();
+            context.goNamed(
+              'phone_input',
+              queryParameters: cubit.state.isLogin
+                  ? const {'mode': 'login'}
+                  : const {},
+            );
+          },
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),
             child: Column(

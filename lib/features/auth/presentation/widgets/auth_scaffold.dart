@@ -46,9 +46,6 @@ class AuthScaffold extends StatelessWidget {
                       padding: EdgeInsets.all(16),
                       onPressed: () {
                         onBackPressed?.call();
-                        if (context.canPop()) {
-                          context.pop();
-                        }
                       },
                       icon: Icon(
                         Icons.arrow_back,
@@ -87,7 +84,7 @@ class AuthScaffold extends StatelessWidget {
                   ],
                 ),
 
-                // Main Screen Body Content
+                // Content
                 Expanded(child: SingleChildScrollView(child: child)),
 
                 // Primary Button (if provided)

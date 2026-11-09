@@ -1,15 +1,18 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:j_donuts/features/home/presentation/screens/home_screen.dart';
 
+import '../../core/widgets/app_bottom_nav_bar.dart';
 import '../../features/auth/presentation/screens/dob_input_screen.dart';
 import '../../features/auth/presentation/screens/name_input_screen.dart';
 import '../../features/auth/presentation/screens/onboarding_screen.dart';
 import '../../features/auth/presentation/screens/phone_number_input_screen.dart';
 import '../../features/auth/presentation/screens/verify_otp_screen.dart';
 import '../../features/auth/presentation/screens/welcome_screen.dart';
+import '../../features/home/presentation/screens/setting_screen.dart';
 
 GoRouter createRouter({bool isLoggedIn = false}) => GoRouter(
-  initialLocation: isLoggedIn ? '/welcome' : '/onboarding',
+  initialLocation: isLoggedIn ? '/home' : '/onboarding',
   routes: [
     GoRoute(
       path: '/onboarding',
@@ -43,10 +46,37 @@ GoRouter createRouter({bool isLoggedIn = false}) => GoRouter(
       name: 'welcome',
       builder: (context, state) => const WelcomeScreen(),
     ),
-    GoRoute(
-      path: '/home',
-      name: 'home',
-      builder: (context, state) => const HomeScreen(),
+
+    // Bottom Navigation Routes
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return Scaffold(
+          body: navigationShell,
+          bottomNavigationBar: AppBottomNavBar(
+            currentIndex: state.uri.path == '/settings' ? 4 : 0,
+          ),
+        );
+      },
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/home',
+              name: 'home',
+              builder: (context, state) => const HomeScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/settings',
+              name: 'settings',
+              builder: (context, state) => const SettingScreen(),
+            ),
+          ],
+        ),
+      ],
     ),
   ],
 );

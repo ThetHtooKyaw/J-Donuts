@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../domain/entities/product.dart';
 import 'pill_container.dart';
 
 class CustomListview extends StatelessWidget {
@@ -7,12 +8,14 @@ class CustomListview extends StatelessWidget {
   final double imageHeight;
   final double width;
   final bool hasDiscountBorder;
+  final ValueChanged<Product>? onProductTap;
   const CustomListview({
     super.key,
     required this.items,
     required this.imageHeight,
     required this.width,
     this.hasDiscountBorder = false,
+    this.onProductTap,
   });
 
   @override
@@ -28,10 +31,15 @@ class CustomListview extends StatelessWidget {
         itemCount: items.length,
         separatorBuilder: (_, _) => const SizedBox(width: 20),
         itemBuilder: (context, index) {
-          final item = items[index];
+          final Product item = items[index] as Product;
           return SizedBox(
             width: width,
-            child: Column(
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: onProductTap == null
+                  ? null
+                  : () => onProductTap!(item),
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Product Image
@@ -79,6 +87,7 @@ class CustomListview extends StatelessWidget {
                   ),
                 ),
               ],
+              ),
             ),
           );
         },

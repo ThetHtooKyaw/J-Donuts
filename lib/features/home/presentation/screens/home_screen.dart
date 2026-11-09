@@ -6,9 +6,11 @@ import 'package:j_donuts/features/home/presentation/widgets/shop_card.dart';
 
 import '../../../../core/widgets/app_snack_bar.dart';
 import '../../domain/entities/member_profile.dart';
+import '../../domain/entities/product.dart';
 import '../../domain/entities/shop.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
+import 'product_detail_screen.dart';
 import '../widgets/pill_container.dart';
 import '../widgets/section_header.dart';
 import '../widgets/home_skeletons.dart';
@@ -77,6 +79,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         imageHeight: 180,
                         width: 280,
                         hasDiscountBorder: true,
+                        onProductTap: (product) => _openProductDetails(
+                          context,
+                          product,
+                          isSpecialCategory: true,
+                        ),
                       ),
                 const SizedBox(height: 20),
 
@@ -98,6 +105,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         items: data.popular,
                         imageHeight: 280,
                         width: 170,
+                        onProductTap: (product) =>
+                            _openProductDetails(context, product),
                       ),
                 const SizedBox(height: 20),
 
@@ -119,6 +128,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         items: data.orderAgain,
                         imageHeight: 180,
                         width: 170,
+                        onProductTap: (product) =>
+                            _openProductDetails(context, product),
                       ),
                 const SizedBox(height: 30),
 
@@ -132,6 +143,26 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _openProductDetails(
+    BuildContext context,
+    Product product, {
+    bool isSpecialCategory = false,
+  }) {
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(
+        builder: (_) => ProductDetailScreen(
+          productId: product.code,
+          title: product.name,
+          price: product.priceMmk.toDouble(),
+          imageUrl: product.imageUrl,
+          description: product.description,
+          isNew: product.isNew,
+          isSpecialCategory: isSpecialCategory,
+        ),
       ),
     );
   }

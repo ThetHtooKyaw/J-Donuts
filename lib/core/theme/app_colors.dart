@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Brand & Primary Palette from J'Donuts Designs
-  static const Color primaryTeal = Color(0xFF33C3F0);
+  static const Color primaryTeal = Color(0xFF5acfec);
   static const Color accentPink = Color(0xFFFF2E93);
-  static const Color backgroundPink = Color(0xFFfcb5cc);
+  static const Color backgroundPink = Color(0xFFfaeef2);
 
   // Neutral Colors
   static const Color textPrimary = Color(0xFF1A1A1A);

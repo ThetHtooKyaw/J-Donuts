@@ -80,4 +80,81 @@ class AuthValidators {
     }
     return null;
   }
+
+  static String? validateBirthMonth(String? input) {
+    if (input == null || input.trim().isEmpty) {
+      return 'Month is required';
+    }
+
+    final month = _monthNumber(input.trim());
+    if (month == null) {
+      return 'Enter a valid month name, such as May';
+    }
+
+    return null;
+  }
+
+  static String? validateBirthDay(String? input) {
+    if (input == null || input.trim().isEmpty) {
+      return 'Day is required';
+    }
+
+    final day = int.tryParse(input.trim());
+    if (day == null || day < 1 || day > 31) {
+      return 'Enter a day between 1 and 31';
+    }
+
+    return null;
+  }
+
+  static String? validateBirthYear(String? input) {
+    if (input == null || input.trim().isEmpty) {
+      return 'Year is required';
+    }
+
+    final year = int.tryParse(input.trim());
+    final currentYear = DateTime.now().year;
+    if (year == null || year < 1900 || year > currentYear) {
+      return 'Enter a valid year';
+    }
+
+    return null;
+  }
+
+  static int? parseBirthMonth(String input) => _monthNumber(input.trim());
+
+  static int? _monthNumber(String input) {
+    final numericMonth = int.tryParse(input);
+    if (numericMonth != null && numericMonth >= 1 && numericMonth <= 12) {
+      return numericMonth;
+    }
+
+    final normalized = input.toLowerCase();
+    const monthNames = <String, int>{
+      'january': 1,
+      'jan': 1,
+      'february': 2,
+      'feb': 2,
+      'march': 3,
+      'mar': 3,
+      'april': 4,
+      'apr': 4,
+      'may': 5,
+      'june': 6,
+      'jun': 6,
+      'july': 7,
+      'jul': 7,
+      'august': 8,
+      'aug': 8,
+      'september': 9,
+      'sep': 9,
+      'october': 10,
+      'oct': 10,
+      'november': 11,
+      'nov': 11,
+      'december': 12,
+      'dec': 12,
+    };
+    return monthNames[normalized];
+  }
 }

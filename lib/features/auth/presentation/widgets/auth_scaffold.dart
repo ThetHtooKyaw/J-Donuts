@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/widgets/primary_button.dart';
+import 'terms_and_privacy.dart';
 
 class AuthScaffold extends StatelessWidget {
   final Widget child;
@@ -27,7 +29,7 @@ class AuthScaffold extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8F9),
+      backgroundColor: theme.colorScheme.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -41,14 +43,7 @@ class AuthScaffold extends StatelessWidget {
                   children: [
                     // Back button
                     IconButton(
-                      padding: EdgeInsets.zero,
-                      style: IconButton.styleFrom(
-                        padding: EdgeInsets.all(16),
-                        backgroundColor: theme.colorScheme.surface,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+                      padding: EdgeInsets.all(16),
                       onPressed: () {
                         onBackPressed?.call();
                         if (context.canPop()) {
@@ -61,19 +56,34 @@ class AuthScaffold extends StatelessWidget {
                       ),
                     ),
 
-                    // Progress Ring (Task 1 requirement: 25% -> 50% -> 75% -> 100%)
-                    SizedBox(
-                      width: 28,
-                      height: 28,
-                      child: CircularProgressIndicator(
-                        value: progressValue,
-                        backgroundColor: Colors.grey.shade300,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          theme.colorScheme.secondary,
-                        ),
-                        strokeWidth: 8,
-                      ),
-                    ),
+                    // Progress indicator: completed steps show a check mark.
+                    progressValue >= 1.0
+                        ? Container(
+                            width: 34,
+                            height: 34,
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.secondary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 22,
+                            ),
+                          )
+                        : SizedBox(
+                            width: 28,
+                            height: 28,
+                            child: CircularProgressIndicator(
+                              value: progressValue,
+                              backgroundColor: theme.colorScheme.primary
+                                  .withOpacity(0.6),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                theme.colorScheme.secondary,
+                              ),
+                              strokeWidth: 8,
+                            ),
+                          ),
                   ],
                 ),
 
@@ -91,63 +101,9 @@ class AuthScaffold extends StatelessWidget {
                 ],
 
                 // Terms and Privacy Policy Text
-                Text.rich(
-                  TextSpan(
-                    text:
-                        'By continuing, you acknowledge that you have read and agree to our ',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade500,
-                      height: 1.3,
-                    ),
-                    children: [
-                      buildLinkSpan(
-                        context,
-                        theme,
-                        'Terms of Use',
-                        'Terms of Use placeholder sheet opened',
-                      ),
-                      const TextSpan(text: ' and '),
-                      buildLinkSpan(
-                        context,
-                        theme,
-                        'Privacy Policy',
-                        'Privacy Policy placeholder sheet opened',
-                      ),
-                      const TextSpan(text: '.'),
-                    ],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
+                TermsAndPrivacy(),
               ],
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  WidgetSpan buildLinkSpan(
-    BuildContext context,
-    ThemeData theme,
-    String text,
-    String message,
-  ) {
-    return WidgetSpan(
-      alignment: PlaceholderAlignment.baseline,
-      baseline: TextBaseline.alphabetic,
-      child: GestureDetector(
-        onTap: () {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(message)));
-        },
-        child: Text(
-          text,
-          style: TextStyle(
-            color: theme.colorScheme.onSecondary,
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
           ),
         ),
       ),

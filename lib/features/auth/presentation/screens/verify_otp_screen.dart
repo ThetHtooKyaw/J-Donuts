@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../widgets/auth_scaffold.dart';
@@ -26,7 +27,6 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
   int _secondsRemaining = 300;
   Timer? _timer;
   bool _canResend = false;
-  bool _hasValidationError = false;
 
   @override
   void initState() {
@@ -111,66 +111,53 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
     final theme = Theme.of(context);
 
     return BlocConsumer<AuthCubit, AuthState>(
+      listenWhen: (previous, current) =>
+          previous.currentStep != current.currentStep ||
+          previous.failedOtpAttempts != current.failedOtpAttempts ||
+          (previous.errorMessage != current.errorMessage &&
+              current.errorMessage != null &&
+              current.failedOtpAttempts == 0),
       listener: (context, state) {
         if (state.currentStep == AuthStep.name) {
           context.pushNamed('name_input');
         }
+        if (state.currentStep == AuthStep.completed) {
+          context.goNamed('welcome');
+        }
 
         if (state.errorMessage != null && state.failedOtpAttempts > 0) {
-          setState(() {
-            _hasValidationError = true;
-          });
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+          final messenger = ScaffoldMessenger.of(context);
+          messenger
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(
+                backgroundColor: theme.colorScheme.error,
+                content: Text(state.errorMessage!),
+              ),
+            );
         }
       },
       builder: (context, state) {
-        final showOtpError = _hasValidationError || state.failedOtpAttempts > 0;
+        final showOtpError = state.failedOtpAttempts > 0;
 
         return AuthScaffold(
           formKey: _formKey,
           progressValue: state.progressPercentage,
           isLoading: state.isLoading,
           onBackPressed: () => context.read<AuthCubit>().goBack(),
-          primaryButtonText: "CONTINUE",
-          onPrimaryButtonPressed: () {
-            final otpCode = _controllers.map((c) => c.text).join();
-            if (otpCode.length == 6) {
-              setState(() {
-                _hasValidationError = false;
-              });
-              context.read<AuthCubit>().verifyOtp(otpCode);
-            } else {
-              setState(() {
-                _hasValidationError = true;
-              });
-            }
-          },
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Title
-                Text(
-                  "Verify your number",
-                  style: TextStyle(
-                    color: theme.colorScheme.onSurface,
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                    height: 1.2,
-                  ),
-                ),
+                Text("Verify your number", style: theme.textTheme.displayLarge),
                 const SizedBox(height: 12),
 
                 // Instructional text
                 Text(
                   "We've sent 6 digit OTP to +95${state.phoneNumber}",
-                  style: TextStyle(
-                    color: theme.colorScheme.onSurface,
-                    fontSize: 16,
-                  ),
+                  style: theme.textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 30),
 
@@ -223,7 +210,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                             : "Enter the 6-digit code sent to your phone.",
                         style: TextStyle(
                           color: theme.colorScheme.error,
-                          fontSize: 10,
+                          fontSize: 12,
                         ),
                       )
                     : const SizedBox.shrink(),
@@ -233,10 +220,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                 Text.rich(
                   TextSpan(
                     text: "Didn't receive the code?\n",
-                    style: TextStyle(
-                      color: theme.colorScheme.onSurface,
-                      fontSize: 14,
-                    ),
+                    style: theme.textTheme.bodyLarge,
                     children: [
                       WidgetSpan(
                         child: GestureDetector(
@@ -249,34 +233,30 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                           child: _canResend
                               ? Text(
                                   "Resend code",
-                                  style: TextStyle(
-                                    color: theme.colorScheme.tertiary,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    height: 1.3,
+                                    color: theme.colorScheme.onSecondary,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 )
                               : Text.rich(
                                   TextSpan(
                                     text: "resend in ",
-                                    style: TextStyle(
-                                      color: theme.colorScheme.onSurface,
-                                      fontSize: 14,
-                                    ),
+                                    style: theme.textTheme.bodyLarge,
                                     children: [
                                       TextSpan(
                                         text: _formattedTime,
-                                        style: TextStyle(
-                                          color: theme.colorScheme.onSecondary,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 14,
-                                        ),
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              height: 1.3,
+                                              color:
+                                                  theme.colorScheme.onSecondary,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                       ),
                                       TextSpan(
                                         text: " min",
-                                        style: TextStyle(
-                                          color: theme.colorScheme.onSurface,
-                                          fontSize: 14,
-                                        ),
+                                        style: theme.textTheme.bodyLarge,
                                       ),
                                     ],
                                   ),

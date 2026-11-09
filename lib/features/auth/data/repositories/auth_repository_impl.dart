@@ -1,6 +1,6 @@
 import '../../domain/entities/user.dart';
-import '../models/user_model.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../models/user_model.dart';
 import '../datasources/auth_local_data_source.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -28,7 +28,7 @@ class AuthRepositoryImpl implements AuthRepository {
     String? lastName,
     required DateTime dateOfBirth,
   }) async {
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1)); // Fake network delay
     final userModel = UserModel(
       phoneNumber: phoneNumber,
       firstName: firstName,

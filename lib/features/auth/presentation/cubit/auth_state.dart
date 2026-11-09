@@ -10,6 +10,7 @@ class AuthState {
   final bool isLoading;
   final String? errorMessage;
   final int failedOtpAttempts;
+  final bool isLogin;
 
   const AuthState({
     this.currentStep = AuthStep.phone,
@@ -21,6 +22,7 @@ class AuthState {
     this.isLoading = false,
     this.errorMessage,
     this.failedOtpAttempts = 0,
+    this.isLogin = false,
   });
 
   double get progressPercentage {
@@ -48,6 +50,7 @@ class AuthState {
     bool? isLoading,
     String? errorMessage,
     int? failedOtpAttempts,
+    bool? isLogin,
   }) {
     return AuthState(
       currentStep: currentStep ?? this.currentStep,
@@ -59,6 +62,7 @@ class AuthState {
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
       failedOtpAttempts: failedOtpAttempts ?? this.failedOtpAttempts,
+      isLogin: isLogin ?? this.isLogin,
     );
   }
 }

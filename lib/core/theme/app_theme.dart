@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:j_donuts/core/theme/app_colors.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+import 'app_colors.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {
@@ -9,10 +11,10 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.backgroundPink,
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primaryTeal,
+        background: AppColors.backgroundPink,
         primary: AppColors.primaryTeal,
         secondary: AppColors.accentPink,
         onSecondary: AppColors.textSecondary,
-        tertiary: AppColors.backgroundPink,
         surface: AppColors.surfaceWhite,
         onSurface: AppColors.textPrimary,
         onInverseSurface: AppColors.textPlaceholder,
@@ -20,80 +22,117 @@ class AppTheme {
       ),
 
       // Typography styling
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(
+      textTheme: TextTheme(
+        displayLarge: GoogleFonts.quicksand(
+          color: AppColors.textPrimary,
           fontSize: 36,
+          letterSpacing: 1.2,
           fontWeight: FontWeight.bold,
-          color: AppColors.textPrimary,
         ),
-        displayMedium: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.bold,
+        // displayMedium: TextStyle(
+        //   height: 1.2,
+        //   fontSize: 28,
+        //   fontWeight: FontWeight.bold,
+        //   color: AppColors.textPrimary,
+        // ),
+        titleLarge: GoogleFonts.quicksand(
           color: AppColors.textPrimary,
-          height: 1.2,
-        ),
-        titleLarge: TextStyle(
           fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
         ),
-        bodyLarge: TextStyle(
+        bodyLarge: GoogleFonts.quicksand(
+          color: AppColors.textPrimary,
           fontSize: 16,
           fontWeight: FontWeight.normal,
-          color: AppColors.textPrimary,
         ),
-        bodyMedium: TextStyle(
+        bodyMedium: GoogleFonts.quicksand(
+          color: AppColors.textPrimary,
           fontSize: 14,
           fontWeight: FontWeight.normal,
-          color: AppColors.textPlaceholder,
         ),
-        bodySmall: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.normal,
-          color: AppColors.textPlaceholder,
-          height: 1.3,
-        ),
+        // bodySmall: TextStyle(
+        //   fontSize: 10,
+        //   fontWeight: FontWeight.normal,
+        //   color: AppColors.textPlaceholder,
+        // ),
       ),
 
       // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surfaceWhite,
-        contentPadding: const EdgeInsets.symmetric(vertical: 24),
-        hintStyle: TextStyle(color: AppColors.textPlaceholder, fontSize: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 24,
+          horizontal: 20,
+        ),
+        hintStyle: GoogleFonts.quicksand(
+          color: AppColors.textPlaceholder,
+          fontSize: 20,
+        ),
+        errorStyle: GoogleFonts.quicksand(
+          color: AppColors.error,
+          fontSize: 12,
+          height: 2,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+          borderSide: BorderSide(color: Colors.grey.shade300, width: 0.5),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+          borderSide: BorderSide(color: Colors.grey.shade300, width: 0.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+          borderSide: BorderSide(color: Colors.grey.shade300, width: 0.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(color: Colors.grey.shade300, width: 0.5),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(color: Colors.grey.shade300, width: 0.5),
         ),
+      ),
+
+      // App Bar Theme
+      // appBarTheme: const AppBarTheme(
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      //   centerTitle: true,
+      //   iconTheme: IconThemeData(color: AppColors.textPrimary),
+      //   titleTextStyle: TextStyle(
+      //     fontSize: 18,
+      //     fontWeight: FontWeight.bold,
+      //     color: AppColors.textPrimary,
+      //   ),
+      // ),
+
+      // SnackBar Theme
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.primaryTeal,
+        contentTextStyle: GoogleFonts.quicksand(
+          color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+        behavior: SnackBarBehavior.floating,
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
 
       // Elevated Button Theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          minimumSize: const Size(double.infinity, 52),
           backgroundColor: AppColors.primaryTeal,
           foregroundColor: Colors.white,
-          minimumSize: const Size(double.infinity, 52),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(26), // Fully rounded pill shape
           ),
           elevation: 0,
-          textStyle: const TextStyle(
+          textStyle: GoogleFonts.fredoka(
             fontSize: 20,
             letterSpacing: 1.2,
             fontWeight: FontWeight.bold,
@@ -101,16 +140,17 @@ class AppTheme {
         ),
       ),
 
-      // App Bar Theme
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: IconThemeData(color: AppColors.textPrimary),
-        titleTextStyle: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: AppColors.textPrimary,
+      // Icon Button Theme
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          padding: const EdgeInsets.all(16),
+          backgroundColor: AppColors.surfaceWhite,
+          foregroundColor: AppColors.textPrimary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: Colors.grey.shade300, width: 0.5),
+          ),
+          elevation: 0,
         ),
       ),
     );

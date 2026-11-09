@@ -34,6 +34,7 @@ class AuthTextfield extends StatelessWidget {
               )
             : null,
       ),
+      style: Theme.of(context).textTheme.titleLarge,
     );
   }
 }

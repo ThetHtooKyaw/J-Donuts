@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:j_donuts/features/auth/presentation/widgets/auth_textfield.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 import '../../domain/validators/auth_validators.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../widgets/auth_scaffold.dart';
+import '../widgets/auth_textfield.dart';
 
 class PhoneNumberInputScreen extends StatefulWidget {
-  const PhoneNumberInputScreen({super.key});
+  final bool isLogin;
+
+  const PhoneNumberInputScreen({super.key, this.isLogin = false});
 
   @override
   State<PhoneNumberInputScreen> createState() => _PhoneNumberInputScreenState();
@@ -18,19 +22,31 @@ class _PhoneNumberInputScreenState extends State<PhoneNumberInputScreen> {
   final _formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    super.initState();
+    context.read<AuthCubit>().setLoginMode(widget.isLogin);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return BlocConsumer<AuthCubit, AuthState>(
+      listenWhen: (previous, current) =>
+          previous.currentStep != current.currentStep ||
+          previous.errorMessage != current.errorMessage,
       listener: (context, state) {
         if (state.currentStep == AuthStep.otp) {
           context.pushNamed('verify_otp');
         }
 
-        if (state.errorMessage != null) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+        if (state.errorMessage != null && !state.isLogin) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: theme.colorScheme.error,
+              content: Text(state.errorMessage!),
+            ),
+          );
         }
       },
       builder: (context, state) {
@@ -42,7 +58,7 @@ class _PhoneNumberInputScreenState extends State<PhoneNumberInputScreen> {
           primaryButtonText: "CONTINUE",
           onPrimaryButtonPressed: () {
             if (_formKey.currentState?.validate() ?? false) {
-              context.read<AuthCubit>().submitPhoneNumber();
+              _submitPhoneNumber();
             }
           },
           child: Padding(
@@ -53,12 +69,7 @@ class _PhoneNumberInputScreenState extends State<PhoneNumberInputScreen> {
                 // Title
                 Text(
                   "Enter your phone\nnumber",
-                  style: TextStyle(
-                    color: theme.colorScheme.onSurface,
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                    height: 1.2,
-                  ),
+                  style: theme.textTheme.displayLarge,
                 ),
                 const SizedBox(height: 30),
 
@@ -68,10 +79,9 @@ class _PhoneNumberInputScreenState extends State<PhoneNumberInputScreen> {
                   keyboardType: TextInputType.phone,
                   prefixIcon: Text(
                     "+95",
-                    style: TextStyle(
+                    style: GoogleFonts.quicksand(
                       color: theme.colorScheme.onInverseSurface,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
+                      fontSize: 18,
                     ),
                   ),
                   onValidate: (value) => AuthValidators.validatePhone(value),
@@ -84,5 +94,41 @@ class _PhoneNumberInputScreenState extends State<PhoneNumberInputScreen> {
         );
       },
     );
+  }
+
+  Future<void> _submitPhoneNumber() async {
+    final cubit = context.read<AuthCubit>();
+    final otpRequested = await cubit.submitPhoneNumber();
+    if (!mounted || otpRequested || !cubit.state.isLogin) {
+      return;
+    }
+
+    final createAccount = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Create an account?'),
+        content: const Text(
+          "This phone number isn't linked to an account. "
+          'Would you like to create a new one?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted || createAccount != true) {
+      return;
+    }
+
+    cubit.setLoginMode(false);
+    await cubit.submitPhoneNumber();
   }
 }

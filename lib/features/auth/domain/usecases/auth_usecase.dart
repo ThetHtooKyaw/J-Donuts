@@ -32,3 +32,10 @@ class RegisterUserUsecase {
     dateOfBirth: dateOfBirth,
   );
 }
+
+class GetCachedUserUsecase {
+  final AuthRepository repository;
+  GetCachedUserUsecase(this.repository);
+
+  Future<User?> call() => repository.getCachedUser();
+}

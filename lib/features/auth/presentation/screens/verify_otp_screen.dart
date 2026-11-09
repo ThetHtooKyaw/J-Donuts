@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/app_snack_bar.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../widgets/auth_scaffold.dart';
@@ -126,15 +127,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
         }
 
         if (state.errorMessage != null && state.failedOtpAttempts > 0) {
-          final messenger = ScaffoldMessenger.of(context);
-          messenger
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(
-                backgroundColor: theme.colorScheme.error,
-                content: Text(state.errorMessage!),
-              ),
-            );
+          showErrorSnackBar(context, state.errorMessage!);
         }
       },
       builder: (context, state) {

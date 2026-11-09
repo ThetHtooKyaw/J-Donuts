@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/app_snack_bar.dart';
 import '../../domain/validators/auth_validators.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
@@ -66,12 +67,7 @@ class _DOBInputScreenState extends State<DOBInputScreen> {
         }
 
         if (state.errorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: theme.colorScheme.error,
-              content: Text(state.errorMessage!),
-            ),
-          );
+          showErrorSnackBar(context, state.errorMessage!);
         }
       },
       builder: (context, state) {

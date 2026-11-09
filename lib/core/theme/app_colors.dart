@@ -4,7 +4,9 @@ class AppColors {
   // Brand & Primary Palette from J'Donuts Designs
   static const Color primaryTeal = Color(0xFF5acfec);
   static const Color accentPink = Color(0xFFFF2E93);
+  static const Color accentOrange = Color(0xFFff7c21);
   static const Color backgroundPink = Color(0xFFfaeef2);
+  static const Color backgroundLight = Color(0xFFeeefef);
 
   // Neutral Colors
   static const Color textPrimary = Color(0xFF1A1A1A);

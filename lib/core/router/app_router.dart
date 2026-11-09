@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:j_donuts/features/home/presentation/screens/home_screen.dart';
 
 import '../../features/auth/presentation/screens/dob_input_screen.dart';
 import '../../features/auth/presentation/screens/name_input_screen.dart';
@@ -41,6 +42,11 @@ GoRouter createRouter({bool isLoggedIn = false}) => GoRouter(
       path: '/welcome',
       name: 'welcome',
       builder: (context, state) => const WelcomeScreen(),
+    ),
+    GoRoute(
+      path: '/home',
+      name: 'home',
+      builder: (context, state) => const HomeScreen(),
     ),
   ],
 );

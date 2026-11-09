@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/app_snack_bar.dart';
 import '../widgets/terms_and_privacy.dart';
 
 class OnboardingScreen extends StatelessWidget {
@@ -95,7 +96,7 @@ class OnboardingScreen extends StatelessWidget {
                         context: context,
                         iconString: 'assets/icons/google.png',
                         color: Colors.red,
-                        message: 'Google sign-in placeholder sheet opened',
+                        message: 'Google sign-in screen is coming soon.',
                       ),
                       const SizedBox(width: 30),
 
@@ -103,7 +104,7 @@ class OnboardingScreen extends StatelessWidget {
                         context: context,
                         icon: Icons.apple,
                         color: Colors.black,
-                        message: 'Apple sign-in placeholder sheet opened',
+                        message: 'Apple sign-in screen is coming soon.',
                       ),
                       const SizedBox(width: 30),
 
@@ -111,7 +112,7 @@ class OnboardingScreen extends StatelessWidget {
                         context: context,
                         icon: Icons.facebook,
                         color: const Color(0xFF1877F2),
-                        message: 'Facebook sign-in placeholder sheet opened',
+                        message: 'Facebook sign-in screen is coming soon.',
                       ),
                     ],
                   ),
@@ -136,11 +137,7 @@ Widget _buildSocialIconButton({
   required String message,
 }) {
   return GestureDetector(
-    onTap: () {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
-    },
+    onTap: () => showComingSoonSnackBar(context, message),
     child: Container(
       width: 44,
       height: 44,

@@ -7,7 +7,7 @@ class HomeState {
   final bool isOffline;
 
   const HomeState({
-    this.isLoading = true,
+    this.isLoading = false,
     this.data,
     this.errorMessage,
     this.isOffline = false,

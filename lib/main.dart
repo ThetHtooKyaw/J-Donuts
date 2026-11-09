@@ -6,10 +6,11 @@ import 'core/services/locator.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
+import 'features/home/presentation/cubit/home_cubit.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  setupLocator();
+  await setupLocator();
   final cachedUser = await locator<AuthRepository>().getCachedUser();
 
   runApp(MyApp(isLoggedIn: cachedUser != null));
@@ -27,8 +28,11 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       routerConfig: createRouter(isLoggedIn: isLoggedIn),
       builder: (context, child) {
-        return BlocProvider<AuthCubit>.value(
-          value: locator<AuthCubit>(),
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider<AuthCubit>.value(value: locator<AuthCubit>()),
+            BlocProvider<HomeCubit>(create: (_) => locator<HomeCubit>()),
+          ],
           child: child ?? const SizedBox.shrink(),
         );
       },

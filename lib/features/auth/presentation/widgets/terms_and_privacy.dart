@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/widgets/app_snack_bar.dart';
+
 class TermsAndPrivacy extends StatelessWidget {
   const TermsAndPrivacy({super.key});
 
@@ -17,14 +19,14 @@ class TermsAndPrivacy extends StatelessWidget {
             context,
             theme,
             'Terms of Use',
-            'Terms of Use placeholder sheet opened',
+            'Terms of Use screen is coming soon.',
           ),
           const TextSpan(text: ' and '),
           buildLinkSpan(
             context,
             theme,
             'Privacy Policy',
-            'Privacy Policy placeholder sheet opened',
+            'Privacy Policy screen is coming soon.',
           ),
           const TextSpan(text: '.'),
         ],
@@ -43,11 +45,7 @@ class TermsAndPrivacy extends StatelessWidget {
       alignment: PlaceholderAlignment.baseline,
       baseline: TextBaseline.alphabetic,
       child: GestureDetector(
-        onTap: () {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(message)));
-        },
+        onTap: () => showComingSoonSnackBar(context, message),
         child: Text(
           text,
           style: theme.textTheme.bodyMedium?.copyWith(

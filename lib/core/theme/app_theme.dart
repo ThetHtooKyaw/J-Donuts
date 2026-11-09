@@ -12,9 +12,11 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primaryTeal,
         background: AppColors.backgroundPink,
+        onBackground: AppColors.backgroundLight,
         primary: AppColors.primaryTeal,
         secondary: AppColors.accentPink,
         onSecondary: AppColors.textSecondary,
+        onSecondaryContainer: AppColors.accentOrange,
         surface: AppColors.surfaceWhite,
         onSurface: AppColors.textPrimary,
         onInverseSurface: AppColors.textPlaceholder,
@@ -29,15 +31,15 @@ class AppTheme {
           letterSpacing: 1.2,
           fontWeight: FontWeight.bold,
         ),
-        // displayMedium: TextStyle(
-        //   height: 1.2,
-        //   fontSize: 28,
-        //   fontWeight: FontWeight.bold,
-        //   color: AppColors.textPrimary,
-        // ),
+        displayMedium: GoogleFonts.quicksand(
+          color: AppColors.textPrimary,
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
         titleLarge: GoogleFonts.quicksand(
           color: AppColors.textPrimary,
           fontSize: 20,
+          fontWeight: FontWeight.bold,
         ),
         bodyLarge: GoogleFonts.quicksand(
           color: AppColors.textPrimary,
@@ -49,11 +51,11 @@ class AppTheme {
           fontSize: 14,
           fontWeight: FontWeight.normal,
         ),
-        // bodySmall: TextStyle(
-        //   fontSize: 10,
-        //   fontWeight: FontWeight.normal,
-        //   color: AppColors.textPlaceholder,
-        // ),
+        bodySmall: GoogleFonts.quicksand(
+          color: AppColors.textPrimary,
+          fontSize: 10,
+          fontWeight: FontWeight.normal,
+        ),
       ),
 
       // Input Decoration Theme

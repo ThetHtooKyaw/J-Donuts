@@ -5,6 +5,7 @@ import 'package:j_donuts/features/home/presentation/widgets/custom_listview.dart
 import 'package:j_donuts/features/home/presentation/widgets/shop_card.dart';
 
 import '../../../../core/widgets/app_snack_bar.dart';
+import '../../../../core/widgets/noti_container.dart';
 import '../../domain/entities/member_profile.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/entities/shop.dart';
@@ -46,7 +47,14 @@ class _HomeScreenState extends State<HomeScreen> {
           }
 
           if (state.errorMessage != null && state.data == null) {
-            return SectionErrorState(message: state.errorMessage!);
+            return Center(
+              child: Text(
+                state.errorMessage!,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.error,
+                ),
+              ),
+            );
           }
 
           final data = state.data;
@@ -214,44 +222,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
 
               // Notification Badge
-              Container(
-                height: 44,
-                width: 80,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.onSecondaryContainer,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    bottomLeft: Radius.circular(24),
-                  ),
+              NotiContainer(
+                widget: const Icon(
+                  Icons.notifications_outlined,
+                  color: Colors.white,
+                  size: 32,
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Notification Icon
-                    const Icon(
-                      Icons.notifications_outlined,
-                      color: Colors.white,
-                      size: 32,
-                    ),
-                    const SizedBox(width: 6),
-
-                    // Notification Count
-                    if (profile.notificationCount > 0)
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '${profile.notificationCount}',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+                count: profile.notificationCount,
               ),
             ],
           ),

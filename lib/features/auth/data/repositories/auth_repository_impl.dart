@@ -2,11 +2,13 @@ import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../models/user_model.dart';
 import '../datasources/auth_local_data_source.dart';
+import '../../../home/data/datasources/drift_database.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthLocalDataSource localDataSource;
+  final AppDatabase database;
 
-  AuthRepositoryImpl({required this.localDataSource});
+  AuthRepositoryImpl({required this.localDataSource, required this.database});
 
   @override
   Future<void> sendOtp(String phoneNumber) async {
@@ -37,6 +39,14 @@ class AuthRepositoryImpl implements AuthRepository {
     );
 
     await localDataSource.cacheUser(userModel);
+    await database.updateMemberProfile(
+      name: [
+        firstName,
+        if (lastName != null && lastName.trim().isNotEmpty) lastName.trim(),
+      ].join(' '),
+      phoneNumber: phoneNumber,
+      dateOfBirth: dateOfBirth,
+    );
 
     return userModel;
   }
@@ -46,12 +56,32 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<User?> getCachedUser() async {
-    return await localDataSource.getCachedUser();
+    final user = await localDataSource.getCachedUser();
+    if (user != null) {
+      await _syncMemberProfile(user);
+    }
+    return user;
   }
 
   @override
   Future<User?> getActiveUser() async {
-    return await localDataSource.getActiveUser();
+    final user = await localDataSource.getActiveUser();
+    if (user != null) {
+      await _syncMemberProfile(user);
+    }
+    return user;
+  }
+
+  Future<void> _syncMemberProfile(User user) {
+    return database.updateMemberProfile(
+      name: [
+        user.firstName,
+        if (user.lastName != null && user.lastName!.trim().isNotEmpty)
+          user.lastName!.trim(),
+      ].join(' '),
+      phoneNumber: user.phoneNumber,
+      dateOfBirth: user.dateOfBirth,
+    );
   }
 
   @override

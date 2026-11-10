@@ -98,17 +98,17 @@ class AppTheme {
       ),
 
       // App Bar Theme
-      // appBarTheme: const AppBarTheme(
-      //   backgroundColor: Colors.transparent,
-      //   elevation: 0,
-      //   centerTitle: true,
-      //   iconTheme: IconThemeData(color: AppColors.textPrimary),
-      //   titleTextStyle: TextStyle(
-      //     fontSize: 18,
-      //     fontWeight: FontWeight.bold,
-      //     color: AppColors.textPrimary,
-      //   ),
-      // ),
+      appBarTheme: AppBarTheme(
+        elevation: 0,
+        scrolledUnderElevation: 0.0,
+        surfaceTintColor: Colors.transparent,
+        iconTheme: IconThemeData(color: AppColors.textPrimary),
+        titleTextStyle: GoogleFonts.quicksand(
+          color: AppColors.textPrimary,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
 
       // SnackBar Theme
       snackBarTheme: SnackBarThemeData(

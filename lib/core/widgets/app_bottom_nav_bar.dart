@@ -12,6 +12,8 @@ class AppBottomNavBar extends StatelessWidget {
     switch (index) {
       case 0:
         context.go('/home');
+      case 1:
+        context.go('/rewards');
       case 4:
         context.go('/settings');
       default:

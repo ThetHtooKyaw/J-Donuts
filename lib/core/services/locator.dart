@@ -46,7 +46,7 @@ Future<void> setupLocator() async {
 
   // Register Repositories
   locator.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(localDataSource: locator()),
+    () => AuthRepositoryImpl(localDataSource: locator(), database: locator()),
   );
   locator.registerLazySingleton<HomeRepository>(
     () => HomeRepositoryImpl(localDataSource: locator()),
@@ -60,6 +60,7 @@ Future<void> setupLocator() async {
   locator.registerLazySingleton(() => GetCachedUserUsecase(locator()));
   locator.registerLazySingleton(() => GetActiveUserUsecase(locator()));
   locator.registerLazySingleton(() => LogoutUsecase(locator()));
+
   locator.registerLazySingleton(() => GetHomeDataUsecase(locator()));
 
   // Keep one AuthCubit instance for the complete auth flow.

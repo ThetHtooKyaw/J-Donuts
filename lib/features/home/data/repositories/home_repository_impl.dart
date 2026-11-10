@@ -18,6 +18,8 @@ class HomeRepositoryImpl implements HomeRepository {
 
     return MemberProfile(
       name: data.name,
+      phoneNumber: data.phoneNumber,
+      dateOfBirth: data.dateOfBirth,
       tier: data.tier,
       pointsToNextTier: data.pointsToNextTier,
       totalPoints: data.totalPoints,

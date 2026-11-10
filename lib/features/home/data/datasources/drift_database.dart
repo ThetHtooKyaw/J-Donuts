@@ -7,11 +7,35 @@ part 'drift_database.drift.dart';
 class MemberTable extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
+  TextColumn get phoneNumber => text().nullable()();
+  DateTimeColumn get dateOfBirth => dateTime().nullable()();
   TextColumn get tier => text()();
   IntColumn get pointsToNextTier => integer()();
   IntColumn get totalPoints => integer()();
   TextColumn get avatarUrl => text()();
   IntColumn get notificationCount => integer()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class VouchersTable extends Table {
+  TextColumn get id => text()();
+  TextColumn get title => text()();
+  IntColumn get pointsCost => integer()();
+  TextColumn get description => text()();
+  TextColumn get expiryDate => text()();
+  BoolColumn get isUnlocked => boolean()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class RedemptionsTable extends Table {
+  TextColumn get id => text()();
+  TextColumn get voucherTitle => text()();
+  IntColumn get pointsSpent => integer()();
+  TextColumn get redeemedDate => text()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -45,12 +69,20 @@ class ShopsTable extends Table {
 
 // --- DRIFT DATABASE ---
 
-@DriftDatabase(tables: [MemberTable, ProductsTable, ShopsTable])
+@DriftDatabase(
+  tables: [
+    MemberTable,
+    VouchersTable,
+    RedemptionsTable,
+    ProductsTable,
+    ShopsTable,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -59,6 +91,11 @@ class AppDatabase extends _$AppDatabase {
       await _seedInitialData();
     },
     onUpgrade: (Migrator m, int from, int to) async {
+      if (from < 4) {
+        await m.addColumn(memberTable, memberTable.phoneNumber);
+        await m.addColumn(memberTable, memberTable.dateOfBirth);
+      }
+
       if (from < 3) {
         await delete(memberTable).go();
         await delete(productsTable).go();
@@ -75,11 +112,32 @@ class AppDatabase extends _$AppDatabase {
         MemberTableCompanion.insert(
           id: 'current_user',
           name: 'Hania',
+          phoneNumber: const Value(''),
+          dateOfBirth: Value(DateTime(2000)),
           tier: 'Bronze',
           pointsToNextTier: 1290,
           totalPoints: 680000,
           avatarUrl: 'assets/images/avatar.png',
           notificationCount: 2,
+        ),
+      ]);
+
+      batch.insertAll(vouchersTable, [
+        VouchersTableCompanion.insert(
+          id: 'v_free_donut',
+          title: 'Free Classic Donut',
+          pointsCost: 500,
+          description: 'Get any classic flavor donut for free.',
+          expiryDate: '31 Dec 2026',
+          isUnlocked: false,
+        ),
+        VouchersTableCompanion.insert(
+          id: 'v_discount_20',
+          title: '20% OFF Coffee & Beverage',
+          pointsCost: 800,
+          description: 'Enjoy 20% discount on any handcrafted beverage.',
+          expiryDate: '15 Nov 2026',
+          isUnlocked: false,
         ),
       ]);
 
@@ -223,6 +281,22 @@ class AppDatabase extends _$AppDatabase {
         ),
       ]);
     });
+  }
+
+  Future<void> updateMemberProfile({
+    required String name,
+    required String phoneNumber,
+    required DateTime dateOfBirth,
+  }) async {
+    await (update(
+      memberTable,
+    )..where((t) => t.id.equals('current_user'))).write(
+      MemberTableCompanion(
+        name: Value(name),
+        phoneNumber: Value(phoneNumber),
+        dateOfBirth: Value(dateOfBirth),
+      ),
+    );
   }
 
   // --- QUERIES ---

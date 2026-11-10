@@ -26,6 +26,28 @@ class $MemberTableTable extends MemberTable
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _phoneNumberMeta = const VerificationMeta(
+    'phoneNumber',
+  );
+  @override
+  late final GeneratedColumn<String> phoneNumber = GeneratedColumn<String>(
+    'phone_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dateOfBirthMeta = const VerificationMeta(
+    'dateOfBirth',
+  );
+  @override
+  late final GeneratedColumn<DateTime> dateOfBirth = GeneratedColumn<DateTime>(
+    'date_of_birth',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _tierMeta = const VerificationMeta('tier');
   @override
   late final GeneratedColumn<String> tier = GeneratedColumn<String>(
@@ -83,6 +105,8 @@ class $MemberTableTable extends MemberTable
   List<GeneratedColumn> get $columns => [
     id,
     name,
+    phoneNumber,
+    dateOfBirth,
     tier,
     pointsToNextTier,
     totalPoints,
@@ -113,6 +137,24 @@ class $MemberTableTable extends MemberTable
       );
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('phone_number')) {
+      context.handle(
+        _phoneNumberMeta,
+        phoneNumber.isAcceptableOrUnknown(
+          data['phone_number']!,
+          _phoneNumberMeta,
+        ),
+      );
+    }
+    if (data.containsKey('date_of_birth')) {
+      context.handle(
+        _dateOfBirthMeta,
+        dateOfBirth.isAcceptableOrUnknown(
+          data['date_of_birth']!,
+          _dateOfBirthMeta,
+        ),
+      );
     }
     if (data.containsKey('tier')) {
       context.handle(
@@ -180,6 +222,14 @@ class $MemberTableTable extends MemberTable
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
+      phoneNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}phone_number'],
+      ),
+      dateOfBirth: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date_of_birth'],
+      ),
       tier: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}tier'],
@@ -212,6 +262,8 @@ class $MemberTableTable extends MemberTable
 class MemberTableData extends DataClass implements Insertable<MemberTableData> {
   final String id;
   final String name;
+  final String? phoneNumber;
+  final DateTime? dateOfBirth;
   final String tier;
   final int pointsToNextTier;
   final int totalPoints;
@@ -220,6 +272,8 @@ class MemberTableData extends DataClass implements Insertable<MemberTableData> {
   const MemberTableData({
     required this.id,
     required this.name,
+    this.phoneNumber,
+    this.dateOfBirth,
     required this.tier,
     required this.pointsToNextTier,
     required this.totalPoints,
@@ -231,6 +285,12 @@ class MemberTableData extends DataClass implements Insertable<MemberTableData> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
+    if (!nullToAbsent || phoneNumber != null) {
+      map['phone_number'] = Variable<String>(phoneNumber);
+    }
+    if (!nullToAbsent || dateOfBirth != null) {
+      map['date_of_birth'] = Variable<DateTime>(dateOfBirth);
+    }
     map['tier'] = Variable<String>(tier);
     map['points_to_next_tier'] = Variable<int>(pointsToNextTier);
     map['total_points'] = Variable<int>(totalPoints);
@@ -243,6 +303,12 @@ class MemberTableData extends DataClass implements Insertable<MemberTableData> {
     return MemberTableCompanion(
       id: Value(id),
       name: Value(name),
+      phoneNumber: phoneNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(phoneNumber),
+      dateOfBirth: dateOfBirth == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dateOfBirth),
       tier: Value(tier),
       pointsToNextTier: Value(pointsToNextTier),
       totalPoints: Value(totalPoints),
@@ -259,6 +325,8 @@ class MemberTableData extends DataClass implements Insertable<MemberTableData> {
     return MemberTableData(
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
+      phoneNumber: serializer.fromJson<String?>(json['phoneNumber']),
+      dateOfBirth: serializer.fromJson<DateTime?>(json['dateOfBirth']),
       tier: serializer.fromJson<String>(json['tier']),
       pointsToNextTier: serializer.fromJson<int>(json['pointsToNextTier']),
       totalPoints: serializer.fromJson<int>(json['totalPoints']),
@@ -272,6 +340,8 @@ class MemberTableData extends DataClass implements Insertable<MemberTableData> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
+      'phoneNumber': serializer.toJson<String?>(phoneNumber),
+      'dateOfBirth': serializer.toJson<DateTime?>(dateOfBirth),
       'tier': serializer.toJson<String>(tier),
       'pointsToNextTier': serializer.toJson<int>(pointsToNextTier),
       'totalPoints': serializer.toJson<int>(totalPoints),
@@ -283,6 +353,8 @@ class MemberTableData extends DataClass implements Insertable<MemberTableData> {
   MemberTableData copyWith({
     String? id,
     String? name,
+    Value<String?> phoneNumber = const Value.absent(),
+    Value<DateTime?> dateOfBirth = const Value.absent(),
     String? tier,
     int? pointsToNextTier,
     int? totalPoints,
@@ -291,6 +363,8 @@ class MemberTableData extends DataClass implements Insertable<MemberTableData> {
   }) => MemberTableData(
     id: id ?? this.id,
     name: name ?? this.name,
+    phoneNumber: phoneNumber.present ? phoneNumber.value : this.phoneNumber,
+    dateOfBirth: dateOfBirth.present ? dateOfBirth.value : this.dateOfBirth,
     tier: tier ?? this.tier,
     pointsToNextTier: pointsToNextTier ?? this.pointsToNextTier,
     totalPoints: totalPoints ?? this.totalPoints,
@@ -301,6 +375,12 @@ class MemberTableData extends DataClass implements Insertable<MemberTableData> {
     return MemberTableData(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
+      phoneNumber: data.phoneNumber.present
+          ? data.phoneNumber.value
+          : this.phoneNumber,
+      dateOfBirth: data.dateOfBirth.present
+          ? data.dateOfBirth.value
+          : this.dateOfBirth,
       tier: data.tier.present ? data.tier.value : this.tier,
       pointsToNextTier: data.pointsToNextTier.present
           ? data.pointsToNextTier.value
@@ -320,6 +400,8 @@ class MemberTableData extends DataClass implements Insertable<MemberTableData> {
     return (StringBuffer('MemberTableData(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('phoneNumber: $phoneNumber, ')
+          ..write('dateOfBirth: $dateOfBirth, ')
           ..write('tier: $tier, ')
           ..write('pointsToNextTier: $pointsToNextTier, ')
           ..write('totalPoints: $totalPoints, ')
@@ -333,6 +415,8 @@ class MemberTableData extends DataClass implements Insertable<MemberTableData> {
   int get hashCode => Object.hash(
     id,
     name,
+    phoneNumber,
+    dateOfBirth,
     tier,
     pointsToNextTier,
     totalPoints,
@@ -345,6 +429,8 @@ class MemberTableData extends DataClass implements Insertable<MemberTableData> {
       (other is MemberTableData &&
           other.id == this.id &&
           other.name == this.name &&
+          other.phoneNumber == this.phoneNumber &&
+          other.dateOfBirth == this.dateOfBirth &&
           other.tier == this.tier &&
           other.pointsToNextTier == this.pointsToNextTier &&
           other.totalPoints == this.totalPoints &&
@@ -355,6 +441,8 @@ class MemberTableData extends DataClass implements Insertable<MemberTableData> {
 class MemberTableCompanion extends UpdateCompanion<MemberTableData> {
   final Value<String> id;
   final Value<String> name;
+  final Value<String?> phoneNumber;
+  final Value<DateTime?> dateOfBirth;
   final Value<String> tier;
   final Value<int> pointsToNextTier;
   final Value<int> totalPoints;
@@ -364,6 +452,8 @@ class MemberTableCompanion extends UpdateCompanion<MemberTableData> {
   const MemberTableCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
+    this.phoneNumber = const Value.absent(),
+    this.dateOfBirth = const Value.absent(),
     this.tier = const Value.absent(),
     this.pointsToNextTier = const Value.absent(),
     this.totalPoints = const Value.absent(),
@@ -374,6 +464,8 @@ class MemberTableCompanion extends UpdateCompanion<MemberTableData> {
   MemberTableCompanion.insert({
     required String id,
     required String name,
+    this.phoneNumber = const Value.absent(),
+    this.dateOfBirth = const Value.absent(),
     required String tier,
     required int pointsToNextTier,
     required int totalPoints,
@@ -390,6 +482,8 @@ class MemberTableCompanion extends UpdateCompanion<MemberTableData> {
   static Insertable<MemberTableData> custom({
     Expression<String>? id,
     Expression<String>? name,
+    Expression<String>? phoneNumber,
+    Expression<DateTime>? dateOfBirth,
     Expression<String>? tier,
     Expression<int>? pointsToNextTier,
     Expression<int>? totalPoints,
@@ -400,6 +494,8 @@ class MemberTableCompanion extends UpdateCompanion<MemberTableData> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
+      if (phoneNumber != null) 'phone_number': phoneNumber,
+      if (dateOfBirth != null) 'date_of_birth': dateOfBirth,
       if (tier != null) 'tier': tier,
       if (pointsToNextTier != null) 'points_to_next_tier': pointsToNextTier,
       if (totalPoints != null) 'total_points': totalPoints,
@@ -412,6 +508,8 @@ class MemberTableCompanion extends UpdateCompanion<MemberTableData> {
   MemberTableCompanion copyWith({
     Value<String>? id,
     Value<String>? name,
+    Value<String?>? phoneNumber,
+    Value<DateTime?>? dateOfBirth,
     Value<String>? tier,
     Value<int>? pointsToNextTier,
     Value<int>? totalPoints,
@@ -422,6 +520,8 @@ class MemberTableCompanion extends UpdateCompanion<MemberTableData> {
     return MemberTableCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       tier: tier ?? this.tier,
       pointsToNextTier: pointsToNextTier ?? this.pointsToNextTier,
       totalPoints: totalPoints ?? this.totalPoints,
@@ -439,6 +539,12 @@ class MemberTableCompanion extends UpdateCompanion<MemberTableData> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (phoneNumber.present) {
+      map['phone_number'] = Variable<String>(phoneNumber.value);
+    }
+    if (dateOfBirth.present) {
+      map['date_of_birth'] = Variable<DateTime>(dateOfBirth.value);
     }
     if (tier.present) {
       map['tier'] = Variable<String>(tier.value);
@@ -466,11 +572,767 @@ class MemberTableCompanion extends UpdateCompanion<MemberTableData> {
     return (StringBuffer('MemberTableCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('phoneNumber: $phoneNumber, ')
+          ..write('dateOfBirth: $dateOfBirth, ')
           ..write('tier: $tier, ')
           ..write('pointsToNextTier: $pointsToNextTier, ')
           ..write('totalPoints: $totalPoints, ')
           ..write('avatarUrl: $avatarUrl, ')
           ..write('notificationCount: $notificationCount, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $VouchersTableTable extends VouchersTable
+    with TableInfo<$VouchersTableTable, VouchersTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VouchersTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pointsCostMeta = const VerificationMeta(
+    'pointsCost',
+  );
+  @override
+  late final GeneratedColumn<int> pointsCost = GeneratedColumn<int>(
+    'points_cost',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _expiryDateMeta = const VerificationMeta(
+    'expiryDate',
+  );
+  @override
+  late final GeneratedColumn<String> expiryDate = GeneratedColumn<String>(
+    'expiry_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isUnlockedMeta = const VerificationMeta(
+    'isUnlocked',
+  );
+  @override
+  late final GeneratedColumn<bool> isUnlocked = GeneratedColumn<bool>(
+    'is_unlocked',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_unlocked" IN (0, 1))',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    title,
+    pointsCost,
+    description,
+    expiryDate,
+    isUnlocked,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'vouchers_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<VouchersTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('points_cost')) {
+      context.handle(
+        _pointsCostMeta,
+        pointsCost.isAcceptableOrUnknown(data['points_cost']!, _pointsCostMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_pointsCostMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('expiry_date')) {
+      context.handle(
+        _expiryDateMeta,
+        expiryDate.isAcceptableOrUnknown(data['expiry_date']!, _expiryDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_expiryDateMeta);
+    }
+    if (data.containsKey('is_unlocked')) {
+      context.handle(
+        _isUnlockedMeta,
+        isUnlocked.isAcceptableOrUnknown(data['is_unlocked']!, _isUnlockedMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_isUnlockedMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  VouchersTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return VouchersTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      pointsCost: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}points_cost'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      expiryDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}expiry_date'],
+      )!,
+      isUnlocked: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_unlocked'],
+      )!,
+    );
+  }
+
+  @override
+  $VouchersTableTable createAlias(String alias) {
+    return $VouchersTableTable(attachedDatabase, alias);
+  }
+}
+
+class VouchersTableData extends DataClass
+    implements Insertable<VouchersTableData> {
+  final String id;
+  final String title;
+  final int pointsCost;
+  final String description;
+  final String expiryDate;
+  final bool isUnlocked;
+  const VouchersTableData({
+    required this.id,
+    required this.title,
+    required this.pointsCost,
+    required this.description,
+    required this.expiryDate,
+    required this.isUnlocked,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    map['points_cost'] = Variable<int>(pointsCost);
+    map['description'] = Variable<String>(description);
+    map['expiry_date'] = Variable<String>(expiryDate);
+    map['is_unlocked'] = Variable<bool>(isUnlocked);
+    return map;
+  }
+
+  VouchersTableCompanion toCompanion(bool nullToAbsent) {
+    return VouchersTableCompanion(
+      id: Value(id),
+      title: Value(title),
+      pointsCost: Value(pointsCost),
+      description: Value(description),
+      expiryDate: Value(expiryDate),
+      isUnlocked: Value(isUnlocked),
+    );
+  }
+
+  factory VouchersTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return VouchersTableData(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      pointsCost: serializer.fromJson<int>(json['pointsCost']),
+      description: serializer.fromJson<String>(json['description']),
+      expiryDate: serializer.fromJson<String>(json['expiryDate']),
+      isUnlocked: serializer.fromJson<bool>(json['isUnlocked']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'pointsCost': serializer.toJson<int>(pointsCost),
+      'description': serializer.toJson<String>(description),
+      'expiryDate': serializer.toJson<String>(expiryDate),
+      'isUnlocked': serializer.toJson<bool>(isUnlocked),
+    };
+  }
+
+  VouchersTableData copyWith({
+    String? id,
+    String? title,
+    int? pointsCost,
+    String? description,
+    String? expiryDate,
+    bool? isUnlocked,
+  }) => VouchersTableData(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    pointsCost: pointsCost ?? this.pointsCost,
+    description: description ?? this.description,
+    expiryDate: expiryDate ?? this.expiryDate,
+    isUnlocked: isUnlocked ?? this.isUnlocked,
+  );
+  VouchersTableData copyWithCompanion(VouchersTableCompanion data) {
+    return VouchersTableData(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      pointsCost: data.pointsCost.present
+          ? data.pointsCost.value
+          : this.pointsCost,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      expiryDate: data.expiryDate.present
+          ? data.expiryDate.value
+          : this.expiryDate,
+      isUnlocked: data.isUnlocked.present
+          ? data.isUnlocked.value
+          : this.isUnlocked,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VouchersTableData(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('pointsCost: $pointsCost, ')
+          ..write('description: $description, ')
+          ..write('expiryDate: $expiryDate, ')
+          ..write('isUnlocked: $isUnlocked')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, title, pointsCost, description, expiryDate, isUnlocked);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is VouchersTableData &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.pointsCost == this.pointsCost &&
+          other.description == this.description &&
+          other.expiryDate == this.expiryDate &&
+          other.isUnlocked == this.isUnlocked);
+}
+
+class VouchersTableCompanion extends UpdateCompanion<VouchersTableData> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<int> pointsCost;
+  final Value<String> description;
+  final Value<String> expiryDate;
+  final Value<bool> isUnlocked;
+  final Value<int> rowid;
+  const VouchersTableCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.pointsCost = const Value.absent(),
+    this.description = const Value.absent(),
+    this.expiryDate = const Value.absent(),
+    this.isUnlocked = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  VouchersTableCompanion.insert({
+    required String id,
+    required String title,
+    required int pointsCost,
+    required String description,
+    required String expiryDate,
+    required bool isUnlocked,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       title = Value(title),
+       pointsCost = Value(pointsCost),
+       description = Value(description),
+       expiryDate = Value(expiryDate),
+       isUnlocked = Value(isUnlocked);
+  static Insertable<VouchersTableData> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<int>? pointsCost,
+    Expression<String>? description,
+    Expression<String>? expiryDate,
+    Expression<bool>? isUnlocked,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (pointsCost != null) 'points_cost': pointsCost,
+      if (description != null) 'description': description,
+      if (expiryDate != null) 'expiry_date': expiryDate,
+      if (isUnlocked != null) 'is_unlocked': isUnlocked,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  VouchersTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? title,
+    Value<int>? pointsCost,
+    Value<String>? description,
+    Value<String>? expiryDate,
+    Value<bool>? isUnlocked,
+    Value<int>? rowid,
+  }) {
+    return VouchersTableCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      pointsCost: pointsCost ?? this.pointsCost,
+      description: description ?? this.description,
+      expiryDate: expiryDate ?? this.expiryDate,
+      isUnlocked: isUnlocked ?? this.isUnlocked,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (pointsCost.present) {
+      map['points_cost'] = Variable<int>(pointsCost.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (expiryDate.present) {
+      map['expiry_date'] = Variable<String>(expiryDate.value);
+    }
+    if (isUnlocked.present) {
+      map['is_unlocked'] = Variable<bool>(isUnlocked.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VouchersTableCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('pointsCost: $pointsCost, ')
+          ..write('description: $description, ')
+          ..write('expiryDate: $expiryDate, ')
+          ..write('isUnlocked: $isUnlocked, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $RedemptionsTableTable extends RedemptionsTable
+    with TableInfo<$RedemptionsTableTable, RedemptionsTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RedemptionsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _voucherTitleMeta = const VerificationMeta(
+    'voucherTitle',
+  );
+  @override
+  late final GeneratedColumn<String> voucherTitle = GeneratedColumn<String>(
+    'voucher_title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pointsSpentMeta = const VerificationMeta(
+    'pointsSpent',
+  );
+  @override
+  late final GeneratedColumn<int> pointsSpent = GeneratedColumn<int>(
+    'points_spent',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _redeemedDateMeta = const VerificationMeta(
+    'redeemedDate',
+  );
+  @override
+  late final GeneratedColumn<String> redeemedDate = GeneratedColumn<String>(
+    'redeemed_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    voucherTitle,
+    pointsSpent,
+    redeemedDate,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'redemptions_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<RedemptionsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('voucher_title')) {
+      context.handle(
+        _voucherTitleMeta,
+        voucherTitle.isAcceptableOrUnknown(
+          data['voucher_title']!,
+          _voucherTitleMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_voucherTitleMeta);
+    }
+    if (data.containsKey('points_spent')) {
+      context.handle(
+        _pointsSpentMeta,
+        pointsSpent.isAcceptableOrUnknown(
+          data['points_spent']!,
+          _pointsSpentMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_pointsSpentMeta);
+    }
+    if (data.containsKey('redeemed_date')) {
+      context.handle(
+        _redeemedDateMeta,
+        redeemedDate.isAcceptableOrUnknown(
+          data['redeemed_date']!,
+          _redeemedDateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_redeemedDateMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RedemptionsTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RedemptionsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      voucherTitle: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}voucher_title'],
+      )!,
+      pointsSpent: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}points_spent'],
+      )!,
+      redeemedDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}redeemed_date'],
+      )!,
+    );
+  }
+
+  @override
+  $RedemptionsTableTable createAlias(String alias) {
+    return $RedemptionsTableTable(attachedDatabase, alias);
+  }
+}
+
+class RedemptionsTableData extends DataClass
+    implements Insertable<RedemptionsTableData> {
+  final String id;
+  final String voucherTitle;
+  final int pointsSpent;
+  final String redeemedDate;
+  const RedemptionsTableData({
+    required this.id,
+    required this.voucherTitle,
+    required this.pointsSpent,
+    required this.redeemedDate,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['voucher_title'] = Variable<String>(voucherTitle);
+    map['points_spent'] = Variable<int>(pointsSpent);
+    map['redeemed_date'] = Variable<String>(redeemedDate);
+    return map;
+  }
+
+  RedemptionsTableCompanion toCompanion(bool nullToAbsent) {
+    return RedemptionsTableCompanion(
+      id: Value(id),
+      voucherTitle: Value(voucherTitle),
+      pointsSpent: Value(pointsSpent),
+      redeemedDate: Value(redeemedDate),
+    );
+  }
+
+  factory RedemptionsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RedemptionsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      voucherTitle: serializer.fromJson<String>(json['voucherTitle']),
+      pointsSpent: serializer.fromJson<int>(json['pointsSpent']),
+      redeemedDate: serializer.fromJson<String>(json['redeemedDate']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'voucherTitle': serializer.toJson<String>(voucherTitle),
+      'pointsSpent': serializer.toJson<int>(pointsSpent),
+      'redeemedDate': serializer.toJson<String>(redeemedDate),
+    };
+  }
+
+  RedemptionsTableData copyWith({
+    String? id,
+    String? voucherTitle,
+    int? pointsSpent,
+    String? redeemedDate,
+  }) => RedemptionsTableData(
+    id: id ?? this.id,
+    voucherTitle: voucherTitle ?? this.voucherTitle,
+    pointsSpent: pointsSpent ?? this.pointsSpent,
+    redeemedDate: redeemedDate ?? this.redeemedDate,
+  );
+  RedemptionsTableData copyWithCompanion(RedemptionsTableCompanion data) {
+    return RedemptionsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      voucherTitle: data.voucherTitle.present
+          ? data.voucherTitle.value
+          : this.voucherTitle,
+      pointsSpent: data.pointsSpent.present
+          ? data.pointsSpent.value
+          : this.pointsSpent,
+      redeemedDate: data.redeemedDate.present
+          ? data.redeemedDate.value
+          : this.redeemedDate,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RedemptionsTableData(')
+          ..write('id: $id, ')
+          ..write('voucherTitle: $voucherTitle, ')
+          ..write('pointsSpent: $pointsSpent, ')
+          ..write('redeemedDate: $redeemedDate')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, voucherTitle, pointsSpent, redeemedDate);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RedemptionsTableData &&
+          other.id == this.id &&
+          other.voucherTitle == this.voucherTitle &&
+          other.pointsSpent == this.pointsSpent &&
+          other.redeemedDate == this.redeemedDate);
+}
+
+class RedemptionsTableCompanion extends UpdateCompanion<RedemptionsTableData> {
+  final Value<String> id;
+  final Value<String> voucherTitle;
+  final Value<int> pointsSpent;
+  final Value<String> redeemedDate;
+  final Value<int> rowid;
+  const RedemptionsTableCompanion({
+    this.id = const Value.absent(),
+    this.voucherTitle = const Value.absent(),
+    this.pointsSpent = const Value.absent(),
+    this.redeemedDate = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RedemptionsTableCompanion.insert({
+    required String id,
+    required String voucherTitle,
+    required int pointsSpent,
+    required String redeemedDate,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       voucherTitle = Value(voucherTitle),
+       pointsSpent = Value(pointsSpent),
+       redeemedDate = Value(redeemedDate);
+  static Insertable<RedemptionsTableData> custom({
+    Expression<String>? id,
+    Expression<String>? voucherTitle,
+    Expression<int>? pointsSpent,
+    Expression<String>? redeemedDate,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (voucherTitle != null) 'voucher_title': voucherTitle,
+      if (pointsSpent != null) 'points_spent': pointsSpent,
+      if (redeemedDate != null) 'redeemed_date': redeemedDate,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RedemptionsTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? voucherTitle,
+    Value<int>? pointsSpent,
+    Value<String>? redeemedDate,
+    Value<int>? rowid,
+  }) {
+    return RedemptionsTableCompanion(
+      id: id ?? this.id,
+      voucherTitle: voucherTitle ?? this.voucherTitle,
+      pointsSpent: pointsSpent ?? this.pointsSpent,
+      redeemedDate: redeemedDate ?? this.redeemedDate,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (voucherTitle.present) {
+      map['voucher_title'] = Variable<String>(voucherTitle.value);
+    }
+    if (pointsSpent.present) {
+      map['points_spent'] = Variable<int>(pointsSpent.value);
+    }
+    if (redeemedDate.present) {
+      map['redeemed_date'] = Variable<String>(redeemedDate.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RedemptionsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('voucherTitle: $voucherTitle, ')
+          ..write('pointsSpent: $pointsSpent, ')
+          ..write('redeemedDate: $redeemedDate, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1360,6 +2222,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $MemberTableTable memberTable = $MemberTableTable(this);
+  late final $VouchersTableTable vouchersTable = $VouchersTableTable(this);
+  late final $RedemptionsTableTable redemptionsTable = $RedemptionsTableTable(
+    this,
+  );
   late final $ProductsTableTable productsTable = $ProductsTableTable(this);
   late final $ShopsTableTable shopsTable = $ShopsTableTable(this);
   @override
@@ -1368,6 +2234,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     memberTable,
+    vouchersTable,
+    redemptionsTable,
     productsTable,
     shopsTable,
   ];
@@ -1377,6 +2245,8 @@ typedef $$MemberTableTableCreateCompanionBuilder =
     MemberTableCompanion Function({
       required String id,
       required String name,
+      Value<String?> phoneNumber,
+      Value<DateTime?> dateOfBirth,
       required String tier,
       required int pointsToNextTier,
       required int totalPoints,
@@ -1388,6 +2258,8 @@ typedef $$MemberTableTableUpdateCompanionBuilder =
     MemberTableCompanion Function({
       Value<String> id,
       Value<String> name,
+      Value<String?> phoneNumber,
+      Value<DateTime?> dateOfBirth,
       Value<String> tier,
       Value<int> pointsToNextTier,
       Value<int> totalPoints,
@@ -1412,6 +2284,16 @@ class $$MemberTableTableFilterComposer
 
   ColumnFilters<String> get name => $composableBuilder(
     column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get phoneNumber => $composableBuilder(
+    column: $table.phoneNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get dateOfBirth => $composableBuilder(
+    column: $table.dateOfBirth,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1460,6 +2342,16 @@ class $$MemberTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get phoneNumber => $composableBuilder(
+    column: $table.phoneNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dateOfBirth => $composableBuilder(
+    column: $table.dateOfBirth,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get tier => $composableBuilder(
     column: $table.tier,
     builder: (column) => ColumnOrderings(column),
@@ -1500,6 +2392,16 @@ class $$MemberTableTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get phoneNumber => $composableBuilder(
+    column: $table.phoneNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get dateOfBirth => $composableBuilder(
+    column: $table.dateOfBirth,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get tier =>
       $composableBuilder(column: $table.tier, builder: (column) => column);
@@ -1556,6 +2458,8 @@ class $$MemberTableTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
+                Value<String?> phoneNumber = const Value.absent(),
+                Value<DateTime?> dateOfBirth = const Value.absent(),
                 Value<String> tier = const Value.absent(),
                 Value<int> pointsToNextTier = const Value.absent(),
                 Value<int> totalPoints = const Value.absent(),
@@ -1565,6 +2469,8 @@ class $$MemberTableTableTableManager
               }) => MemberTableCompanion(
                 id: id,
                 name: name,
+                phoneNumber: phoneNumber,
+                dateOfBirth: dateOfBirth,
                 tier: tier,
                 pointsToNextTier: pointsToNextTier,
                 totalPoints: totalPoints,
@@ -1576,6 +2482,8 @@ class $$MemberTableTableTableManager
               ({
                 required String id,
                 required String name,
+                Value<String?> phoneNumber = const Value.absent(),
+                Value<DateTime?> dateOfBirth = const Value.absent(),
                 required String tier,
                 required int pointsToNextTier,
                 required int totalPoints,
@@ -1585,6 +2493,8 @@ class $$MemberTableTableTableManager
               }) => MemberTableCompanion.insert(
                 id: id,
                 name: name,
+                phoneNumber: phoneNumber,
+                dateOfBirth: dateOfBirth,
                 tier: tier,
                 pointsToNextTier: pointsToNextTier,
                 totalPoints: totalPoints,
@@ -1624,6 +2534,454 @@ typedef $$MemberTableTableProcessedTableManager =
         BaseReferences<_$AppDatabase, $MemberTableTable, MemberTableData>,
       ),
       MemberTableData,
+      PrefetchHooks Function()
+    >;
+typedef $$VouchersTableTableCreateCompanionBuilder =
+    VouchersTableCompanion Function({
+      required String id,
+      required String title,
+      required int pointsCost,
+      required String description,
+      required String expiryDate,
+      required bool isUnlocked,
+      Value<int> rowid,
+    });
+typedef $$VouchersTableTableUpdateCompanionBuilder =
+    VouchersTableCompanion Function({
+      Value<String> id,
+      Value<String> title,
+      Value<int> pointsCost,
+      Value<String> description,
+      Value<String> expiryDate,
+      Value<bool> isUnlocked,
+      Value<int> rowid,
+    });
+
+class $$VouchersTableTableFilterComposer
+    extends Composer<_$AppDatabase, $VouchersTableTable> {
+  $$VouchersTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pointsCost => $composableBuilder(
+    column: $table.pointsCost,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get expiryDate => $composableBuilder(
+    column: $table.expiryDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isUnlocked => $composableBuilder(
+    column: $table.isUnlocked,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$VouchersTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $VouchersTableTable> {
+  $$VouchersTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pointsCost => $composableBuilder(
+    column: $table.pointsCost,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get expiryDate => $composableBuilder(
+    column: $table.expiryDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isUnlocked => $composableBuilder(
+    column: $table.isUnlocked,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$VouchersTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $VouchersTableTable> {
+  $$VouchersTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<int> get pointsCost => $composableBuilder(
+    column: $table.pointsCost,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get expiryDate => $composableBuilder(
+    column: $table.expiryDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isUnlocked => $composableBuilder(
+    column: $table.isUnlocked,
+    builder: (column) => column,
+  );
+}
+
+class $$VouchersTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $VouchersTableTable,
+          VouchersTableData,
+          $$VouchersTableTableFilterComposer,
+          $$VouchersTableTableOrderingComposer,
+          $$VouchersTableTableAnnotationComposer,
+          $$VouchersTableTableCreateCompanionBuilder,
+          $$VouchersTableTableUpdateCompanionBuilder,
+          (
+            VouchersTableData,
+            BaseReferences<
+              _$AppDatabase,
+              $VouchersTableTable,
+              VouchersTableData
+            >,
+          ),
+          VouchersTableData,
+          PrefetchHooks Function()
+        > {
+  $$VouchersTableTableTableManager(_$AppDatabase db, $VouchersTableTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$VouchersTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$VouchersTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$VouchersTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<int> pointsCost = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<String> expiryDate = const Value.absent(),
+                Value<bool> isUnlocked = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => VouchersTableCompanion(
+                id: id,
+                title: title,
+                pointsCost: pointsCost,
+                description: description,
+                expiryDate: expiryDate,
+                isUnlocked: isUnlocked,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String title,
+                required int pointsCost,
+                required String description,
+                required String expiryDate,
+                required bool isUnlocked,
+                Value<int> rowid = const Value.absent(),
+              }) => VouchersTableCompanion.insert(
+                id: id,
+                title: title,
+                pointsCost: pointsCost,
+                description: description,
+                expiryDate: expiryDate,
+                isUnlocked: isUnlocked,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$VouchersTableTable, VouchersTableData>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $VouchersTableTable,
+                    VouchersTableData
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$VouchersTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $VouchersTableTable,
+      VouchersTableData,
+      $$VouchersTableTableFilterComposer,
+      $$VouchersTableTableOrderingComposer,
+      $$VouchersTableTableAnnotationComposer,
+      $$VouchersTableTableCreateCompanionBuilder,
+      $$VouchersTableTableUpdateCompanionBuilder,
+      (
+        VouchersTableData,
+        BaseReferences<_$AppDatabase, $VouchersTableTable, VouchersTableData>,
+      ),
+      VouchersTableData,
+      PrefetchHooks Function()
+    >;
+typedef $$RedemptionsTableTableCreateCompanionBuilder =
+    RedemptionsTableCompanion Function({
+      required String id,
+      required String voucherTitle,
+      required int pointsSpent,
+      required String redeemedDate,
+      Value<int> rowid,
+    });
+typedef $$RedemptionsTableTableUpdateCompanionBuilder =
+    RedemptionsTableCompanion Function({
+      Value<String> id,
+      Value<String> voucherTitle,
+      Value<int> pointsSpent,
+      Value<String> redeemedDate,
+      Value<int> rowid,
+    });
+
+class $$RedemptionsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $RedemptionsTableTable> {
+  $$RedemptionsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get voucherTitle => $composableBuilder(
+    column: $table.voucherTitle,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pointsSpent => $composableBuilder(
+    column: $table.pointsSpent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get redeemedDate => $composableBuilder(
+    column: $table.redeemedDate,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$RedemptionsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $RedemptionsTableTable> {
+  $$RedemptionsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get voucherTitle => $composableBuilder(
+    column: $table.voucherTitle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pointsSpent => $composableBuilder(
+    column: $table.pointsSpent,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get redeemedDate => $composableBuilder(
+    column: $table.redeemedDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$RedemptionsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RedemptionsTableTable> {
+  $$RedemptionsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get voucherTitle => $composableBuilder(
+    column: $table.voucherTitle,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get pointsSpent => $composableBuilder(
+    column: $table.pointsSpent,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get redeemedDate => $composableBuilder(
+    column: $table.redeemedDate,
+    builder: (column) => column,
+  );
+}
+
+class $$RedemptionsTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $RedemptionsTableTable,
+          RedemptionsTableData,
+          $$RedemptionsTableTableFilterComposer,
+          $$RedemptionsTableTableOrderingComposer,
+          $$RedemptionsTableTableAnnotationComposer,
+          $$RedemptionsTableTableCreateCompanionBuilder,
+          $$RedemptionsTableTableUpdateCompanionBuilder,
+          (
+            RedemptionsTableData,
+            BaseReferences<
+              _$AppDatabase,
+              $RedemptionsTableTable,
+              RedemptionsTableData
+            >,
+          ),
+          RedemptionsTableData,
+          PrefetchHooks Function()
+        > {
+  $$RedemptionsTableTableTableManager(
+    _$AppDatabase db,
+    $RedemptionsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RedemptionsTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RedemptionsTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RedemptionsTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> voucherTitle = const Value.absent(),
+                Value<int> pointsSpent = const Value.absent(),
+                Value<String> redeemedDate = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RedemptionsTableCompanion(
+                id: id,
+                voucherTitle: voucherTitle,
+                pointsSpent: pointsSpent,
+                redeemedDate: redeemedDate,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String voucherTitle,
+                required int pointsSpent,
+                required String redeemedDate,
+                Value<int> rowid = const Value.absent(),
+              }) => RedemptionsTableCompanion.insert(
+                id: id,
+                voucherTitle: voucherTitle,
+                pointsSpent: pointsSpent,
+                redeemedDate: redeemedDate,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$RedemptionsTableTable, RedemptionsTableData>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $RedemptionsTableTable,
+                    RedemptionsTableData
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$RedemptionsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $RedemptionsTableTable,
+      RedemptionsTableData,
+      $$RedemptionsTableTableFilterComposer,
+      $$RedemptionsTableTableOrderingComposer,
+      $$RedemptionsTableTableAnnotationComposer,
+      $$RedemptionsTableTableCreateCompanionBuilder,
+      $$RedemptionsTableTableUpdateCompanionBuilder,
+      (
+        RedemptionsTableData,
+        BaseReferences<
+          _$AppDatabase,
+          $RedemptionsTableTable,
+          RedemptionsTableData
+        >,
+      ),
+      RedemptionsTableData,
       PrefetchHooks Function()
     >;
 typedef $$ProductsTableTableCreateCompanionBuilder =
@@ -2115,6 +3473,10 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$MemberTableTableTableManager get memberTable =>
       $$MemberTableTableTableManager(_db, _db.memberTable);
+  $$VouchersTableTableTableManager get vouchersTable =>
+      $$VouchersTableTableTableManager(_db, _db.vouchersTable);
+  $$RedemptionsTableTableTableManager get redemptionsTable =>
+      $$RedemptionsTableTableTableManager(_db, _db.redemptionsTable);
   $$ProductsTableTableTableManager get productsTable =>
       $$ProductsTableTableTableManager(_db, _db.productsTable);
   $$ShopsTableTableTableManager get shopsTable =>

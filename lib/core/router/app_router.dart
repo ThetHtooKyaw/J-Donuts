@@ -10,6 +10,7 @@ import '../../features/auth/presentation/screens/phone_number_input_screen.dart'
 import '../../features/auth/presentation/screens/verify_otp_screen.dart';
 import '../../features/auth/presentation/screens/welcome_screen.dart';
 import '../../features/home/presentation/screens/setting_screen.dart';
+import '../../features/reward/presentation/screens/reward_screen.dart';
 
 GoRouter createRouter({bool isLoggedIn = false}) => GoRouter(
   initialLocation: isLoggedIn ? '/home' : '/onboarding',
@@ -53,7 +54,11 @@ GoRouter createRouter({bool isLoggedIn = false}) => GoRouter(
         return Scaffold(
           body: navigationShell,
           bottomNavigationBar: AppBottomNavBar(
-            currentIndex: state.uri.path == '/settings' ? 4 : 0,
+            currentIndex: switch (state.uri.path) {
+              '/rewards' => 1,
+              '/settings' => 4,
+              _ => 0,
+            },
           ),
         );
       },
@@ -64,6 +69,15 @@ GoRouter createRouter({bool isLoggedIn = false}) => GoRouter(
               path: '/home',
               name: 'home',
               builder: (context, state) => const HomeScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/rewards',
+              name: 'rewards',
+              builder: (context, state) => const RewardsScreen(),
             ),
           ],
         ),

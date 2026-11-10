@@ -34,7 +34,6 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<UserModel?> getCachedUser() async {
     final jsonString = await secureStorage.read(key: _userKey);
     if (jsonString != null) {
-      print(UserModel.fromJson(jsonDecode(jsonString)));
       return UserModel.fromJson(jsonDecode(jsonString));
     }
 

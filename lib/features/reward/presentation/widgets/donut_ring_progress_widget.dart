@@ -3,12 +3,18 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
-Future<ui.Image> loadUiImage(String assetPath) async {
-  final data = await rootBundle.load(assetPath);
-  final bytes = data.buffer.asUint8List();
-  final codec = await ui.instantiateImageCodec(bytes);
-  final frame = await codec.getNextFrame();
-  return frame.image;
+// Decoded images are cached per asset path so rebuilding the widget (e.g. on a
+// tab switch) does not re-read and re-decode the PNG on the UI isolate.
+final Map<String, Future<ui.Image>> _uiImageCache = {};
+
+Future<ui.Image> loadUiImage(String assetPath) {
+  return _uiImageCache.putIfAbsent(assetPath, () async {
+    final data = await rootBundle.load(assetPath);
+    final bytes = data.buffer.asUint8List();
+    final codec = await ui.instantiateImageCodec(bytes);
+    final frame = await codec.getNextFrame();
+    return frame.image;
+  });
 }
 
 class DonutRingProgressWidget extends StatelessWidget {
